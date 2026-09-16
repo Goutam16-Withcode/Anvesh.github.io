@@ -27,6 +27,7 @@ import {
   Compass,
   GraduationCap,
   Award,
+  Sliders,
 } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -36,6 +37,7 @@ import { CardSpotlight } from '@/components/ui/card-spotlight';
 import { useSearchParams } from 'next/navigation';
 import { api, WhatIfResult, TrajectoryPoint, LearningStep, Job } from '@/lib/api';
 import { formatNumber } from '@/lib/utils';
+import { KnapsackOptimizer } from '@/components/WhatIf';
 
 interface SkillCategory {
   name: string;
@@ -110,6 +112,7 @@ const PRESET_STACKS = [
 function WhatIfContent() {
   const searchParams = useSearchParams();
   const [selectedSkills, setSelectedSkills] = useState<string[]>(['Kubernetes', 'Go']);
+  const [simulationMode, setSimulationMode] = useState<'optimizer' | 'manual'>('optimizer');
   const [simulationData, setSimulationData] = useState<WhatIfResult['simulation'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'trajectory' | 'roles' | 'roadmap'>('overview');
@@ -232,7 +235,59 @@ function WhatIfContent() {
       {/* Main Simulation Workspace */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
         
-        {/* Step 1: Interactive Skill Injector & Accelerator Stacks */}
+        {/* Simulation Methodology Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-subtle">
+          <div className="space-y-0.5">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> Simulation Methodology
+            </span>
+            <div className="text-sm font-extrabold text-slate-900">
+              {simulationMode === 'optimizer'
+                ? 'Algorithmic Minimum Skill Set Optimization (Bounded Knapsack Solver)'
+                : 'Manual Hypothesis Exploration (Canonical Skill Injection)'}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+            <button
+              onClick={() => setSimulationMode('optimizer')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                simulationMode === 'optimizer'
+                  ? 'bg-white text-indigo-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Knapsack Optimizer</span>
+              <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[10px] font-mono py-0 px-1.5">
+                AI Solver
+              </Badge>
+            </button>
+            <button
+              onClick={() => setSimulationMode('manual')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                simulationMode === 'manual'
+                  ? 'bg-white text-emerald-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Manual Injector</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Render Optimizer or Manual Injector based on Mode */}
+        {simulationMode === 'optimizer' ? (
+          <KnapsackOptimizer
+            onApplyOptimalSkills={(skills) => {
+              setSelectedSkills(skills);
+              runSimulation(skills);
+            }}
+            currentlySelectedSkills={selectedSkills}
+          />
+        ) : (
+        /* Step 1: Interactive Skill Injector & Accelerator Stacks */
         <section className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-subtle space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
@@ -328,8 +383,8 @@ function WhatIfContent() {
               ))}
             </div>
           </div>
-
         </section>
+        )}
 
         {/* Step 2: Key ROI Output Cards */}
         {simulationData && (

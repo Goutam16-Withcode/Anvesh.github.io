@@ -97,10 +97,11 @@ export function Navbar() {
                   badge="Tools"
                 />
                 <ProductItem
-                  title="Skill Gap Radar Chart"
-                  description="Prioritized learning resources and competency matrices"
-                  href="/skill-gap"
-                  icon={<Activity className="w-4 h-4 text-emerald-600" />}
+                  title="Interactive Knowledge Graph"
+                  description="Explore 15,400+ nodes, prerequisite DAGs and shortest bridge paths"
+                  href="/skill-graph"
+                  icon={<GitGraph className="w-4 h-4 text-indigo-600" />}
+                  badge="2D Graph"
                 />
                 <ProductItem
                   title="MMR Diversity Engine"
@@ -236,6 +237,14 @@ export function Navbar() {
             >
               <span>Skill Gap Analyzer</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Radar</span>
+            </Link>
+            <Link
+              href="/skill-graph"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-semibold text-slate-800 hover:text-brand-600 py-1 transition-colors flex items-center justify-between"
+            >
+              <span>Skill & Role Knowledge Graph</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">2D DAG</span>
             </Link>
             <Link
               href="/career-path"
