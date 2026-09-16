@@ -218,6 +218,24 @@ sequenceDiagram
 - **Authentication Lifecycle Telemetry**: Real-time session synchronization on login, candidate vector space initialization on signup, and verified Zero-PII memory buffer purging on logout.
 - **Synthesized Web Audio & Floating Toasts**: Native dual-frequency tactile audio cues (no external audio assets) coupled with ambient dark-glass floating toasts and an interactive header notification center.
 
+### 7. 🎒 Minimum Skill Set Knapsack Optimizer (Bounded Submodular Solver)
+- **Problem**: Candidates know their study budget (e.g., 6 weeks at 10 hrs/week) but don't know which combination of skills produces the highest market value.
+- **Optimization Core**: Formulated as a bounded submodular knapsack problem maximizing salary lift and job unlock volume subject to $\sum \text{Weeks}(s) \le B$, incorporating **compound synergy multipliers** (e.g. `CUDA` + `TensorRT` yields $+16\%$ compound gain).
+- **Interactive UI**: Located in [`/what-if`](frontend/app/what-if/page.tsx), featuring tactile budget sliders, sensitivity analysis, and one-click transfer to live trajectory simulators.
+
+### 8. 🔬 Explainable AI: "Why NOT This Job?" Rejection Diagnosis & TreeSHAP Waterfall
+- **Deterministic Gatekeeper Audit**: Analyzes exact reasons behind lower ranking or disqualification:
+  - **Experience Delta**: Evaluates seniority fit ($E_{\text{cand}} - E_{\min}$); calculates exact LTR score penalty.
+  - **Hard Requirement Disqualifiers**: Identifies non-negotiable competencies missing from verified AST graphs.
+  - **Catalog Age Decay**: Visualizes exponential freshness decay penalties ($e^{-\lambda \Delta t}$).
+- **TreeSHAP Waterfall Visualizer**: Displays positive gains (Semantic Cosine, Core Python/PyTorch overlap) and negative deductions (Seniority deficit, missing dependencies).
+- **Actionable Remediation Bridge**: One-click *"Simulate Fix in What-If"* pre-populates missing skills directly into the simulator.
+
+### 9. 🕸️ 2D Interactive Skill & Role Knowledge Graph Explorer
+- **Interactive Topological Canvas**: Dedicated visual studio at [`/skill-graph`](frontend/app/skill-graph/page.tsx) rendering 15,400+ nodes and directed prerequisite DAG edges (`PREREQUISITE`, `REQUIRED_FOR`, `COMPLEMENTARY`).
+- **Shortest Bridge Trajectory**: Highlights the minimal topological bridge path from current role (e.g. *Senior Backend Engineer*) to target role (e.g. *AI Platform Engineer*) with glowing golden edge animations.
+- **Node Inspector & Controls**: Smooth pan/zoom, live ontology search, domain filter pills, and bottom inspector drawer detailing market demand, verified status, and salary deltas.
+
 ---
 
 ## 🗂️ Complete Monorepo Folder Structure
@@ -242,33 +260,25 @@ anvesh/
 │   └── api/
 │       └── api-spec.md                # OpenAPI REST endpoints & request/response specs
 │
-├── backend/                    # FastAPI Microservices Backend
-│   ├── app/
-│   │   ├── main.py                    # Application entrypoint & middleware configuration
-│   │   ├── config.py                  # Pydantic BaseSettings config loader
-│   │   ├── dependencies.py            # Database sessions, redis pool & auth guards
-│   │   ├── api/                       # API Route Controllers & Schemas
-│   │   │   ├── routes/                # auth, resume, profile, jobs, recs, what_if, agent
-│   │   │   └── schemas/               # Pydantic request/response validation schemas
-│   │   ├── services/                  # Core Business Logic Subsystems
-│   │   │   ├── resume/                # Parser, section extractor, skill normalizer
-│   │   │   ├── jobs/                  # Ingestion, normalization, deduplication, freshness
-│   │   │   ├── recommendation/        # Hybrid retrieval, ranking, reranking, MMR
-│   │   │   ├── roles/                 # Role discovery, taxonomy, semantic role embeddings
-│   │   │   ├── skills/                # Skill graph, gap calculation, market demand
-│   │   │   ├── career/                # Career pathing, opportunity graph, what-if engine
-│   │   │   ├── personalization/       # User profile state, behavior store, feedback
-│   │   │   └── agent/                 # LangChain tool orchestrator, prompts, tools
-│   │   ├── database/                  # SQLAlchemy ORM Models & Alembic Migrations
-│   │   │   ├── models/                # User, Profile, Job, Skill, Company, Interaction
-│   │   │   ├── repositories/          # DAO pattern for DB interactions
-│   │   │   └── migrations/            # Alembic database migration scripts
-│   │   ├── workers/                   # Asynchronous Background Workers (Celery/Cron)
-│   │   └── utils/                     # Logging, security, metric exporters
-│   └── tests/                         # Unit, Integration & Evaluation Test Suite
+├── backend/                    # Backend Services Layer
+│   ├── src/                    # NestJS API Gateway (Active on :8000)
+│   │   ├── main.py                    # Entrypoint, CORS, Validation, Swagger Docs
+│   │   ├── app.module.ts              # Root NestJS Module
+│   │   ├── auth/                      # JWT, Firebase Auth, Passport Guards, DTOs
+│   │   ├── recommendations/           # Multi-Stage Recs & LTR match breakdown
+│   │   ├── what-if/                   # Counterfactual simulation engine
+│   │   ├── agent/                     # Autonomous Career Agent & Tool caller
+│   │   ├── roles/                     # Role ontology & skill-gap traversal
+│   │   ├── users/                     # Candidate profile & interaction manager
+│   │   └── health/                    # Health check controller
+│   └── app/                    # Python FastAPI Microservices Scaffolding
+│       ├── api/routes/                # Python route controllers
+│       ├── database/                  # SQLAlchemy ORM models & Alembic migrations
+│       ├── services/                  # Resume parser, skill normalizer, vector encoder
+│       └── workers/                   # Celery & background tasks
 │
 ├── ml/                         # Machine Learning Research & Pipelines
-│   ├── embeddings/                    # Profile & Job vector encoders
+│   ├── embeddings/                    # Profile & Job vector encoders (MiniLM-L6)
 │   ├── retrieval/                     # Dense semantic, skill-based, hybrid search
 │   ├── ranking/                       # Feature generator & LightGBM ranker
 │   ├── graph/                         # Skill GraphSage & knowledge graph embeddings
@@ -278,7 +288,7 @@ anvesh/
 │
 ├── ingestion/                  # Global Job Ingestion Engine
 │   ├── sources/                       # Official API connectors & feed parsers
-│   ├── pipelines/                     # Fetch, normalize, deduplicate, validate
+│   ├── pipelines/                     # Fetch, normalize, MinHash LSH deduplicate
 │   └── schemas/                       # Canonical job ingestion schema models
 │
 ├── data/                       # Taxonomy, Ontologies & Datasets
@@ -288,19 +298,28 @@ anvesh/
 │   └── taxonomy/                      # Canonical skills.json & roles.json
 │
 ├── frontend/                   # Next.js 14 Web Application
-│   ├── app/                           # App Router (dashboard, jobs, what-if, profile, skill-gap, career-path)
-│   ├── components/                    # UI Components (Notifications, SkillGraph, WhatIf, JobCard, etc.)
-│   │   ├── Notifications/             # Real-time NotificationCenter popover & LiveNotificationToast
-│   │   ├── SkillGraph/                # Multi-Vector Radar & Competency Matrix
-│   │   ├── CareerGraph/               # Shortest-path DAG Trajectory visualizer
-│   │   └── ui/                        # Design system primitives & brand vectors
-│   └── lib/                           # API client, AuthContext, NotificationContext & type definitions
+│   ├── app/                           # App Router
+│   │   ├── page.tsx                   # Flagship Landing Page
+│   │   ├── dashboard/page.tsx         # Unified Career Intelligence Dashboard
+│   │   ├── jobs/page.tsx              # Job Discovery Board with SHAP Diagnosis
+│   │   ├── what-if/page.tsx           # What-If Simulator + Knapsack Optimizer
+│   │   ├── skill-graph/page.tsx       # 2D Interactive Knowledge Graph Explorer
+│   │   ├── skill-gap/page.tsx         # Multi-Vector Radar & Competency Matrix
+│   │   ├── career-path/page.tsx       # Shortest-Path Career Trajectory visualizer
+│   │   └── profile/page.tsx           # Candidate Resume AST & Skill Manager
+│   ├── components/                    # UI Components (Shadcn + Aceternity)
+│   │   ├── WhatIf/                    # KnapsackOptimizer, ROICalculator, SimulatorPanel
+│   │   ├── JobCard/                   # JobCard, WhyNotDiagnosisModal, BookmarkButton
+│   │   ├── SkillGraph/                # InteractiveKnowledgeGraph, SkillRadarChart
+│   │   ├── Notifications/             # NotificationCenter, LiveNotificationToast
+│   │   ├── CareerGraph/               # CareerPathTree, MilestoneTimeline
+│   │   └── ui/                        # CardSpotlight, FloatingNavbar, Badges, Buttons
+│   └── lib/                           # API client, AuthContext, NotificationContext
 │
 ├── infra/                      # Infrastructure as Code
 │   ├── docker/                        # Multi-stage Dockerfiles
 │   ├── nginx/                         # Reverse proxy configuration
-│   ├── monitoring/                    # Prometheus & Grafana configs
-│   └── scripts/                       # Database seed and maintenance scripts
+│   └── monitoring/                    # Prometheus & Grafana configs
 │
 └── notebooks/                  # Jupyter Research Notebooks
     ├── data_analysis/                 # Exploratory data analysis
@@ -348,15 +367,17 @@ gantt
 
 | Component | Technology | Rationale & Trade-off Analysis |
 |---|---|---|
-| **API Gateway** | FastAPI + Pydantic v2 | Non-blocking async I/O, native JSON Schema validation, automatic Swagger/OpenAPI docs. |
+| **API Gateway** | NestJS (TypeScript) + Swagger | Modular dependency injection, enterprise route controllers, automatic OpenAPI `/api/docs`. |
+| **ML Microservice** | FastAPI + Pydantic v2 | High-throughput async I/O, native PyTorch/LightGBM model serving, and vector endpoints. |
 | **Relational Database** | PostgreSQL 16 | Relational integrity for user profiles, interaction logs, applications, and taxonomies. |
 | **Vector Database** | Qdrant | Fast HNSW indexing, filterable payload indexes (work mode, salary, experience, freshness). |
 | **Cache & Message Broker** | Redis 7 + Celery | Low-latency session store, rate limiting, and asynchronous background ingestion jobs. |
 | **Embedding Model** | `all-MiniLM-L6-v2` | 384-dimensional dense vectors with high inference throughput and strong semantic alignment. |
 | **Ranking Engine** | LightGBM LambdaMART | High-speed gradient boosting with pairwise ranking loss for sub-10ms inference latency. |
-| **Skill Knowledge Graph** | NetworkX & Graph Algorithms | Graph traversal for prerequisite paths, Jaccard similarity, and role ontology expansion. |
+| **Skill Knowledge Graph** | NetworkX & SVG DAG Engine | Graph traversal for prerequisite paths, Jaccard similarity, and role ontology expansion. |
 | **AI Agent Orchestrator** | LangChain Core | Structured tool calling with deterministic microservices; zero hallucinations. |
 | **Frontend Framework** | Next.js 14 (App Router) | Server-side rendering, React Server Components, responsive glassmorphism UI. |
+| **Design System Primitives** | Shadcn UI + Aceternity UI | Tailored cards, spot-lights, floating navigation, and accessible interactive primitives. |
 | **Real-Time Signal Hub** | React Context + Web Audio API | Live telemetry stream, tactile audio chime cues, ambient dark-glass toast notifications. |
 | **Experiment Tracking** | MLflow | Metric logging, parameter tracking, and model registry for ranking models. |
 
@@ -374,16 +395,13 @@ docker compose up -d
 - **MLflow Tracking Dashboard**: [http://localhost:5000](http://localhost:5000)
 - **PostgreSQL Database**: `localhost:5432` (`anvesh_db`)
 
-### 3. Local Backend Setup
+### 3. Start NestJS Backend API Gateway
 ```bash
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On Linux/macOS:
-# source .venv/bin/activate
-
-pip install -r requirements.txt
-cp .env.example .env
+cd backend
+npm install
+npm run start:dev
+# API running on http://localhost:8000/api/v1
+# Interactive Swagger Documentation: http://localhost:8000/api/docs
 ```
 
 ### 4. Start Next.js Frontend Application
@@ -391,7 +409,7 @@ cp .env.example .env
 cd frontend
 npm install
 npm run dev
-# App will be accessible at http://localhost:3000
+# Application accessible at http://localhost:3000
 ```
 
 ---
