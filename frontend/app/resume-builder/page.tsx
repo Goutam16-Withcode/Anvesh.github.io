@@ -72,12 +72,15 @@ const TEMPLATES: Template[] = [
 \\usepackage{titlesec}
 \\usepackage{multicol}
 \\usepackage{parskip}
-\\usepackage{fontenc}
 \\usepackage[T1]{fontenc}
 \\usepackage{lmodern}
+\\usepackage{xcolor}
+\\definecolor{anveshblue}{HTML}{4F46E5}
 
-\\titleformat{\\section}{\\large\\bfseries}{}{0em}{}[\\titlerule]
+\\titleformat{\\section}{\\large\\bfseries\\color{anveshblue}}{}{0em}{}[\\titlerule]
 \\setlength{\\parindent}{0pt}
+\\setlength{\\parskip}{0pt}
+\\pagestyle{empty}
 \\hypersetup{colorlinks=true,urlcolor=blue}
 
 \\begin{document}
@@ -381,9 +384,9 @@ const PREVIEW_CSS = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 11pt;
-    line-height: 1.5;
-    color: #1a1a1a;
+    font-size: 10.5pt;
+    line-height: 1.38;
+    color: #172033;
     padding: 0.75in 0.75in;
     background: #fff;
     max-width: 8.5in;
@@ -391,11 +394,12 @@ const PREVIEW_CSS = `
   }
   .ltx-center { text-align: center; margin-bottom: 7pt; }
   .ltx-section {
-    font-size: 12pt;
-    font-weight: bold;
+    font-size: 11pt;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 1.5px solid #1a1a1a;
+    color: #4f46e5;
+    border-bottom: 1.5px solid #4f46e5;
     padding-bottom: 2pt;
     margin: 9pt 0 4pt 0;
     font-family: Arial, sans-serif;
@@ -418,8 +422,8 @@ const PREVIEW_CSS = `
     flex: 1;
   }
   p.ltx-p {
-    margin-bottom: 6pt;
-    line-height: 1.5;
+    margin-bottom: 4pt;
+    line-height: 1.38;
   }
   .ltx-vspace { height: 6pt; }
   .ltx-table {
