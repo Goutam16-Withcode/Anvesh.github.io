@@ -73,15 +73,13 @@ const TEMPLATES: Template[] = [
 \\usepackage{parskip}
 \\usepackage[T1]{fontenc}
 \\usepackage{lmodern}
-\\usepackage{xcolor}
-\\definecolor{anveshblue}{HTML}{4F46E5}
 
 \\setlength{\\parindent}{0pt}
 \\setlist[itemize]{leftmargin=*,topsep=2pt,parsep=0pt,partopsep=0pt,itemsep=2pt,label=\\textbullet}
-\\titleformat{\\section}{\\large\\bfseries\\color{anveshblue}}{}{0em}{}[\\titlerule]
+\\titleformat{\\section}{\\large\\bfseries}{}{0em}{}[\\titlerule]
 \\titlespacing*{\\section}{0pt}{6pt}{4pt}
 \\pagestyle{empty}
-\\hypersetup{colorlinks=true,urlcolor=anveshblue}
+\\hypersetup{hidelinks}
 
 \\begin{document}
 
@@ -90,10 +88,10 @@ const TEMPLATES: Template[] = [
 \\begin{center}
   {\\LARGE\\bfseries Anvesh Kumar}\\\\[3pt]
   Senior ML Engineer \\textbar{} AI Systems Architect\\\\[3pt]
-  \\href{mailto:anvesh@example.com}{anvesh@example.com} \\quad
+  \\href{mailto:anvesh@example.com}{Email: anvesh@example.com} \\quad
   +91 98765 43210 \\quad
-  \\href{https://linkedin.com/in/anvesh}{linkedin.com/in/anvesh} \\quad
-  \\href{https://github.com/anvesh-ml}{github.com/anvesh-ml}
+  \\href{https://linkedin.com/in/anvesh}{LinkedIn: linkedin.com/in/anvesh} \\quad
+  \\href{https://github.com/anvesh-ml}{GitHub: github.com/anvesh-ml}
 \\end{center}
 
 %--- SUMMARY ---%
@@ -290,7 +288,7 @@ function latexToHtml(latex: string): string {
   html = docMatch[1];
 
   // Comments
-  html = html.replace(/%[^\n]*/g, '');
+  html = html.replace(/(?<!\\)%[^\n]*/g, '');
 
   // Section headings
   html = html.replace(/\\section\{([^}]+)\}/g, '<h2 class="ltx-section">$1</h2>');
@@ -337,7 +335,7 @@ function latexToHtml(latex: string): string {
   html = html.replace(/\\#/g, '#');
   html = html.replace(/\\\\(?:\[[^\]]*\])?(\s*)/g, '<br/>');
   html = html.replace(/\\hfill/g, '<span class="ltx-hfill"></span>');
-  html = html.replace(/\\vspace\{[^}]*\}/g, '<div class="ltx-vspace"></div>');
+  html = html.replace(/\\vspace\*?\{[^}]*\}/g, '<div class="ltx-vspace"></div>');
   html = html.replace(/\\quad/g, '&emsp;');
   html = html.replace(/\\,/g, '&thinsp;');
 
@@ -359,7 +357,7 @@ function latexToHtml(latex: string): string {
   html = html.replace(/\\end\{[^}]+\}/g, '');
 
   // Remaining commands
-  html = html.replace(/\\[a-zA-Z]+\{?[^}]*\}?/g, '');
+  html = html.replace(/\\[a-zA-Z]+(?:\s*\{[^{}]*\})?/g, '');
 
   // Paragraph breaks
   html = html.replace(/\n{2,}/g, '</p><p class="ltx-p">');
@@ -386,8 +384,8 @@ const PREVIEW_CSS = `
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #4f46e5;
-    border-bottom: 1.5px solid #4f46e5;
+    color: #111827;
+    border-bottom: 1px solid #111827;
     padding-bottom: 2pt;
     margin: 9pt 0 4pt 0;
     font-family: Arial, sans-serif;
@@ -420,8 +418,8 @@ const PREVIEW_CSS = `
     width: 100%;
   }
   .ltx-td { padding: 1pt 8pt 1pt 0; vertical-align: top; }
-  .ltx-link { color: #4f46e5; text-decoration: none; }
-  .ltx-link:hover { text-decoration: underline; }
+  .ltx-link { color: #111827; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+  .ltx-link:hover { color: #000; }
   .ltx-huge-bold { font-size: 22pt; font-weight: bold; display: block; }
   .ltx-large { font-size: 16pt; display: block; }
   .ltx-large-bold { font-size: 15pt; font-weight: bold; display: block; }
@@ -815,7 +813,7 @@ export default function ResumeBuilderPage() {
 
               {/* Preview iframe (A4 paper feel) */}
               <div className="flex-1 overflow-auto bg-slate-200 p-6">
-                <div className="bg-white shadow-2xl mx-auto" style={{ width: '794px', minHeight: '1123px' }}>
+                <div className="bg-white shadow-2xl mx-auto" style={{ width: 'min(794px, 100%)', minHeight: '1123px' }}>
                   <iframe
                     ref={iframeRef}
                     title="Resume Preview"
