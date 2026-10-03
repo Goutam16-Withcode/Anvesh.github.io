@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useCallback,
   useRef,
-  useMemo,
 } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -16,30 +15,22 @@ import {
   Code2,
   ChevronRight,
   Sparkles,
-  RotateCcw,
   Copy,
   CheckCircle2,
   Layers,
   Zap,
   AlertCircle,
-  Settings,
   Play,
   ChevronDown,
   FileText,
   Wand2,
-  Save,
-  Share2,
-  Maximize2,
-  Minimize2,
   SplitSquareHorizontal,
   Monitor,
-  BookOpen,
 } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { registerLatexLanguage } from '@/lib/monaco-latex';
 
 // ─── Dynamic Monaco Editor (SSR-safe) ───────────────────────────────
 const MonacoEditor = dynamic(
@@ -252,13 +243,13 @@ vector database indexing (HNSW), and counterfactual explainability.
 \\section{Selected Publications}
 
 \\begin{enumerate}[leftmargin=*,topsep=4pt]
-  \\item \\textbf{Anvesh K.}, Smith J. ``Hierarchical HNSW Indexing for Billion-Scale Job Retrieval.''
+  \\item \\textbf{Anvesh K.}, Smith J. "Hierarchical HNSW Indexing for Billion-Scale Job Retrieval."'
   \\textit{NeurIPS 2025}. \\href{https://arxiv.org}{[PDF]}
 
-  \\item \\textbf{Anvesh K.}, Lee M. ``LambdaMART with SHAP Explainability for Career Recommendation.''
+  \\item \\textbf{Anvesh K.}, Lee M. "LambdaMART with SHAP Explainability for Career Recommendation."'
   \\textit{RecSys 2024}. \\href{https://arxiv.org}{[PDF]}
 
-  \\item \\textbf{Anvesh K.} ``Counterfactual Simulation for Deterministic Career Intelligence.''
+  \\item \\textbf{Anvesh K.} "Counterfactual Simulation for Deterministic Career Intelligence."'
   \\textit{ICML 2024 Workshop}. \\href{https://arxiv.org}{[PDF]}
 \\end{enumerate}
 
@@ -288,6 +279,17 @@ Python, PyTorch, JAX, CUDA, C++, LaTeX, Qdrant, PostgreSQL, Git
 ];
 
 // ─── LaTeX→HTML Live Renderer ──────────────────────────────────────────
+function execAll(regex: RegExp, str: string): RegExpExecArray[] {
+  const results: RegExpExecArray[] = [];
+  const re = new RegExp(regex.source, regex.flags);
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(str)) !== null) {
+    results.push(m);
+    if (!re.global) break;
+  }
+  return results;
+}
+
 function latexToHtml(latex: string): string {
   let html = latex;
 
@@ -310,13 +312,13 @@ function latexToHtml(latex: string): string {
 
   // Enumerate / itemize
   html = html.replace(/\\begin\{enumerate\}[\s\S]*?\\end\{enumerate\}/g, (block) => {
-    const items = [...block.matchAll(/\\item\s*([\s\S]*?)(?=\\item|\\end\{enumerate\})/g)];
-    const lis = items.map(([, content]) => `<li>${content.trim()}</li>`).join('');
+    const items = execAll(/\\item\s*([\s\S]*?)(?=\\item|\\end\{enumerate\})/g, block);
+    const lis = items.map((m) => `<li>${(m[1] || '').trim()}</li>`).join('');
     return `<ol class="ltx-ol">${lis}</ol>`;
   });
   html = html.replace(/\\begin\{itemize\}[\s\S]*?\\end\{itemize\}/g, (block) => {
-    const items = [...block.matchAll(/\\item\s*([\s\S]*?)(?=\\item|\\end\{itemize\})/g)];
-    const lis = items.map(([, content]) => `<li>${content.trim()}</li>`).join('');
+    const items = execAll(/\\item\s*([\s\S]*?)(?=\\item|\\end\{itemize\})/g, block);
+    const lis = items.map((m) => `<li>${(m[1] || '').trim()}</li>`).join('');
     return `<ul class="ltx-ul">${lis}</ul>`;
   });
 
@@ -459,7 +461,7 @@ export default function ResumeBuilderPage() {
   const [compileError, setCompileError] = useState<string | null>(null);
   const [autoCompile, setAutoCompile] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const compileTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Live compilation with debounce
   const compile = useCallback((latex: string) => {
@@ -478,15 +480,29 @@ export default function ResumeBuilderPage() {
   const debouncedCompile = useCallback(
     (latex: string) => {
       if (!autoCompile) return;
-      clearTimeout(compileTimerRef.current);
-      compileTimerRef.current = setTimeout(() => compile(latex), 400);
+
+      if (compileTimerRef.current !== null) {
+        clearTimeout(compileTimerRef.current);
+      }
+
+      compileTimerRef.current = setTimeout(() => {
+        compile(latex);
+        compileTimerRef.current = null;
+      }, 400);
     },
     [compile, autoCompile]
   );
 
   useEffect(() => {
     compile(source);
-  }, []);
+
+    return () => {
+      if (compileTimerRef.current !== null) {
+        clearTimeout(compileTimerRef.current);
+        compileTimerRef.current = null;
+      }
+    };
+  }, [compile, source]);
 
   const handleEditorChange = (value: string | undefined) => {
     const code = value ?? '';
@@ -518,10 +534,16 @@ export default function ResumeBuilderPage() {
   };
 
   // Copy to clipboard
-  const handleCopy = () => {
-    navigator.clipboard.writeText(source);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    if (!navigator.clipboard) return;
+
+    try {
+      await navigator.clipboard.writeText(source);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
   };
 
   // Download LaTeX source
@@ -531,8 +553,10 @@ export default function ResumeBuilderPage() {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'resume.tex';
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   // Download PDF via browser print from iframe
@@ -601,8 +625,8 @@ export default function ResumeBuilderPage() {
                           t.color === 'brand'
                             ? 'bg-brand-500/20 text-brand-300'
                             : t.color === 'emerald'
-                            ? 'bg-emerald-500/20 text-emerald-300'
-                            : 'bg-violet-500/20 text-violet-300'
+                              ? 'bg-emerald-500/20 text-emerald-300'
+                              : 'bg-violet-500/20 text-violet-300'
                         )}
                       >
                         {t.badge}
@@ -756,7 +780,8 @@ export default function ResumeBuilderPage() {
                   defaultLanguage="latex"
                   value={source}
                   onChange={handleEditorChange}
-                  theme="vs-dark"
+                  theme="anvesh-dark"
+                  beforeMount={(monaco) => registerLatexLanguage(monaco)}
                   options={{
                     fontSize: 13,
                     fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
