@@ -62,96 +62,84 @@ const TEMPLATES: Template[] = [
   {
     id: 'modern-ml',
     name: 'ANVESH Signature ATS',
-    description: 'One-page, single-column resume tuned for ATS parsing',
+    description: 'ASG-inspired one-page resume with compact ATS-safe hierarchy',
     badge: 'Most Popular',
     color: 'brand',
-    source: `\\documentclass[11pt,a4paper]{article}
-\\usepackage[margin=0.75in]{geometry}
+    source: `\\documentclass[a4paper,10.5pt]{article}
+\\usepackage[margin=0.45in]{geometry}
 \\usepackage{enumitem}
-\\usepackage{hyperref}
+\\usepackage[hidelinks]{hyperref}
 \\usepackage{titlesec}
-\\usepackage{multicol}
 \\usepackage{parskip}
 \\usepackage[T1]{fontenc}
 \\usepackage{lmodern}
 \\usepackage{xcolor}
 \\definecolor{anveshblue}{HTML}{4F46E5}
 
-\\titleformat{\\section}{\\large\\bfseries\\color{anveshblue}}{}{0em}{}[\\titlerule]
 \\setlength{\\parindent}{0pt}
-\\setlength{\\parskip}{0pt}
+\\setlist[itemize]{leftmargin=*,topsep=2pt,parsep=0pt,partopsep=0pt,itemsep=2pt,label=\\textbullet}
+\\titleformat{\\section}{\\large\\bfseries\\color{anveshblue}}{}{0em}{}[\\titlerule]
+\\titlespacing*{\\section}{0pt}{6pt}{4pt}
 \\pagestyle{empty}
-\\hypersetup{colorlinks=true,urlcolor=blue}
+\\hypersetup{colorlinks=true,urlcolor=anveshblue}
 
 \\begin{document}
 
 %--- HEADER ---%
+\\vspace*{-0.35cm}
 \\begin{center}
-  {\\Huge\\bfseries Anvesh Kumar}\\\\[4pt]
-  Senior ML Engineer \\textbar{} AI Systems Architect\\\\[4pt]
+  {\\LARGE\\bfseries Anvesh Kumar}\\\\[3pt]
+  Senior ML Engineer \\textbar{} AI Systems Architect\\\\[3pt]
   \\href{mailto:anvesh@example.com}{anvesh@example.com} \\quad
   +91 98765 43210 \\quad
   \\href{https://linkedin.com/in/anvesh}{linkedin.com/in/anvesh} \\quad
   \\href{https://github.com/anvesh-ml}{github.com/anvesh-ml}
 \\end{center}
 
-\\vspace{4pt}
-
 %--- SUMMARY ---%
 \\section{Professional Summary}
-ML Systems Engineer with 5+ years building production-grade recommendation engines,
-vector databases, and LLM inference pipelines. Proven track record deploying
-HNSW-indexed Qdrant collections achieving sub-2ms retrieval at 10M+ scale.
-Deep expertise in PyTorch, CUDA kernel optimization, and distributed training.
+ML Systems Engineer with 5+ years building production-grade recommendation engines, vector databases, and LLM inference pipelines. Proven track record deploying HNSW-indexed Qdrant collections achieving sub-2ms retrieval at 10M+ scale. Deep expertise in PyTorch, CUDA kernel optimization, distributed training, and production API design.
 
 %--- EXPERIENCE ---%
 \\section{Work Experience}
 
 \\textbf{Senior ML Engineer} \\hfill TechCorp AI | May 2021 -- Present\\\\
-\\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
-  \\item Designed LightGBM LambdaMART ranking pipeline achieving \\textbf{NDCG@10 = 0.942}
-  \\item Optimized CUDA kernels reducing transformer inference latency by \\textbf{3.2×}
-  \\item Built Qdrant HNSW vector store indexing \\textbf{50M+ job embeddings} with 1.2ms P99
-  \\item Deployed multi-stage recommendation API serving \\textbf{2M+ daily requests}
+\\begin{itemize}
+  \\item Designed a LightGBM LambdaMART ranking pipeline achieving \\textbf{NDCG@10 = 0.942} on production recommendation data
+  \\item Optimized CUDA kernels and transformer inference, reducing latency by \\textbf{3.2x} and improving serving efficiency
+  \\item Built a Qdrant HNSW vector store indexing \\textbf{50M+ job embeddings} with 1.2ms P99 retrieval latency
+  \\item Deployed a multi-stage recommendation API serving \\textbf{2M+ daily requests} with measurable relevance and latency SLAs
 \\end{itemize}
 
-\\vspace{6pt}
 \\textbf{ML Engineer} \\hfill StartupXYZ | Jan 2019 -- Apr 2021\\\\
-\\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
-  \\item Implemented hybrid BM25 + dense retrieval pipeline (\\textbf{Recall@500 = 0.94})
-  \\item Deployed FastAPI microservice serving \\textbf{50k req/min} with P99 < 15ms
-  \\item Reduced model inference cost by 40\\% via TensorRT FP16 quantization
+\\begin{itemize}
+  \\item Implemented hybrid BM25 and dense retrieval achieving \\textbf{Recall@500 = 0.94} across job and skill search
+  \\item Deployed a FastAPI inference service serving \\textbf{50k requests per minute} with P99 latency below 15ms
+  \\item Reduced model inference cost by 40\\% through TensorRT FP16 quantization and batch-serving improvements
 \\end{itemize}
+
+%--- PROJECTS ---%
+\\section{Selected Projects}
+
+\\textbf{ANVESH Career Intelligence Platform} \\hfill \\href{https://github.com/anvesh-ml/anvesh}{github.com/anvesh-ml}\\\\
+Full-stack AI career recommendation engine with a 15,400+ node skill ontology, LightGBM LambdaMART ranker, Qdrant HNSW retrieval, and counterfactual What-If simulator.
+
+\\vspace{2pt}
+\\textbf{CUDA Flash-Attention Kernel}\\\\
+Custom CUDA kernel achieving 4x speedup over standard attention on A100 GPUs; published as open source with 1,200+ GitHub stars.
 
 %--- EDUCATION ---%
 \\section{Education}
-
 \\textbf{B.Tech Computer Science \\& Engineering} \\hfill IIT Bombay | 2019\\\\
 GPA: 9.2/10.0 \\textbar{} Specialization: AI \\& Machine Learning
 
 %--- SKILLS ---%
 \\section{Technical Skills}
-
-\\begin{tabular}{@{}ll}
-  \\textbf{Languages:} & Python, C++, TypeScript, Rust, CUDA \\\\
-  \\textbf{ML Frameworks:} & PyTorch, JAX, Hugging Face Transformers, DeepSpeed \\\\
-  \\textbf{Systems:} & TensorRT, vLLM, FlashAttention, Triton, ONNX \\\\
-  \\textbf{Databases:} & Qdrant, PostgreSQL 16, Redis 7, DuckDB \\\\
-  \\textbf{Infrastructure:} & Kubernetes, Docker, Terraform, MLflow, Celery \\\\
-\\end{tabular}
-
-%--- PROJECTS ---%
-\\section{Key Projects}
-
-\\textbf{ANVESH Career Intelligence Platform} \\hfill
-\\href{https://github.com/anvesh-ml/anvesh}{github.com/anvesh-ml/anvesh}\\\\
-Full-stack AI career recommendation engine with 15,400+ node skill ontology,
-LightGBM LambdaMART ranker, Qdrant HNSW retrieval, and counterfactual What-If simulator.
-
-\\vspace{4pt}
-\\textbf{CUDA Flash-Attention Kernel}\\\\
-Custom CUDA kernel achieving 4× speedup over standard attention on A100 GPUs.
-Published as open-source with 1,200+ GitHub stars.
+\\textbf{Languages:} Python, C++, TypeScript, Rust, CUDA\\\\
+\\textbf{ML Frameworks:} PyTorch, JAX, Hugging Face Transformers, DeepSpeed\\\\
+\\textbf{Systems:} TensorRT, vLLM, FlashAttention, Triton, ONNX\\\\
+\\textbf{Databases:} Qdrant, PostgreSQL 16, Redis 7, DuckDB\\\\
+\\textbf{Infrastructure:} Kubernetes, Docker, Terraform, MLflow, Celery, FastAPI
 
 \\end{document}`,
   },
@@ -347,7 +335,7 @@ function latexToHtml(latex: string): string {
   html = html.replace(/\\&/g, '&amp;');
   html = html.replace(/\\%/g, '%');
   html = html.replace(/\\#/g, '#');
-  html = html.replace(/\\\\(\s*)/g, '<br/>');
+  html = html.replace(/\\\\(?:\[[^\]]*\])?(\s*)/g, '<br/>');
   html = html.replace(/\\hfill/g, '<span class="ltx-hfill"></span>');
   html = html.replace(/\\vspace\{[^}]*\}/g, '<div class="ltx-vspace"></div>');
   html = html.replace(/\\quad/g, '&emsp;');
@@ -456,7 +444,7 @@ const VIEW_MODES: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
 // ─── Main Component ────────────────────────────────────────────────────
 export default function ResumeBuilderPage() {
   const [source, setSource] = useState(TEMPLATES[0].source);
-  const [previewHtml, setPreviewHtml] = useState('');
+  const [previewHtml, setPreviewHtml] = useState(() => latexToHtml(TEMPLATES[0].source));
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   const [selectedTemplate, setSelectedTemplate] = useState('modern-ml');
   const [copied, setCopied] = useState(false);
@@ -514,18 +502,6 @@ export default function ResumeBuilderPage() {
     debouncedCompile(code);
   };
 
-  // Inject preview into iframe
-  useEffect(() => {
-    if (!iframeRef.current) return;
-    const doc = iframeRef.current.contentDocument;
-    if (!doc) return;
-    doc.open();
-    doc.write(`<!DOCTYPE html><html><head>
-      <meta charset="utf-8"/>
-      <style>${PREVIEW_CSS}</style>
-    </head><body>${previewHtml}</body></html>`);
-    doc.close();
-  }, [previewHtml]);
 
   // Template switch
   const applyTemplate = (templateId: string) => {
@@ -574,32 +550,35 @@ export default function ResumeBuilderPage() {
   const charCount = source.length;
 
   const currentTemplate = TEMPLATES.find((t) => t.id === selectedTemplate)!;
-
+  const previewDocument = `<!DOCTYPE html><html><head>
+    <meta charset="utf-8"/>
+    <style>${PREVIEW_CSS}</style>
+  </head><body>${previewHtml}</body></html>`;
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[#0f1117] flex flex-col">
+      <main className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
         {/* ── Top Bar ── */}
-        <div className="border-b border-[#1e2433] bg-[#0d1117] flex items-center gap-4 px-4 py-2.5 flex-shrink-0 mt-16">
+        <div className="border-b border-slate-200/80 bg-white/95 shadow-sm flex items-center gap-4 px-4 py-2.5 flex-shrink-0 mt-16">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-slate-500 mr-2">
-            <Link href="/profile" className="hover:text-slate-300 transition-colors">
+            <Link href="/profile" className="hover:text-brand-600 transition-colors">
               Profile
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-slate-200 font-medium flex items-center gap-1.5">
+            <span className="text-slate-900 font-medium flex items-center gap-1.5">
               <FileCode2 className="w-4 h-4 text-brand-400" />
               LaTeX Resume Builder
             </span>
           </div>
 
-          <div className="h-5 w-px bg-[#1e2433]" />
+          <div className="h-5 w-px bg-slate-200" />
 
           {/* Template Picker */}
           <div className="relative">
             <button
               onClick={() => setShowTemplates(!showTemplates)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1e2433] border border-[#2d3748] text-slate-300 hover:border-brand-500/50 text-sm transition-all duration-200"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-brand-500/50 text-sm transition-all duration-200"
             >
               <Layers className="w-3.5 h-3.5 text-brand-400" />
               {currentTemplate.name}
@@ -607,7 +586,7 @@ export default function ResumeBuilderPage() {
             </button>
 
             {showTemplates && (
-              <div className="absolute top-full left-0 mt-2 w-72 bg-[#1a2035] border border-[#2d3748] rounded-xl shadow-2xl z-50 p-2">
+              <div className="absolute top-full left-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-2">
                 {TEMPLATES.map((t) => (
                   <button
                     key={t.id}
@@ -615,22 +594,22 @@ export default function ResumeBuilderPage() {
                     className={cn(
                       'w-full text-left px-3 py-2.5 rounded-lg transition-all duration-150',
                       selectedTemplate === t.id
-                        ? 'bg-brand-600/20 border border-brand-500/30'
-                        : 'hover:bg-[#243050]'
+                        ? 'bg-brand-50 border border-brand-200'
+                        : 'hover:bg-slate-50'
                     )}
                   >
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-sm font-semibold text-slate-200">
+                      <span className="text-sm font-semibold text-slate-800">
                         {t.name}
                       </span>
                       <span
                         className={cn(
                           'text-[10px] font-bold px-1.5 py-0.5 rounded-full',
                           t.color === 'brand'
-                            ? 'bg-brand-500/20 text-brand-300'
+                            ? 'bg-brand-50 text-brand-700'
                             : t.color === 'emerald'
-                              ? 'bg-emerald-500/20 text-emerald-300'
-                              : 'bg-violet-500/20 text-violet-300'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-violet-50 text-violet-700'
                         )}
                       >
                         {t.badge}
@@ -669,8 +648,8 @@ export default function ResumeBuilderPage() {
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all',
               autoCompile
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                : 'bg-[#1e2433] text-slate-400 border-[#2d3748]'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-500/30'
+                : 'bg-white text-slate-500 border-slate-200'
             )}
           >
             <Zap className="w-3 h-3" />
@@ -691,7 +670,7 @@ export default function ResumeBuilderPage() {
           <div className="flex-1" />
 
           {/* View Mode */}
-          <div className="flex items-center gap-1 bg-[#1e2433] border border-[#2d3748] rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1">
             {VIEW_MODES.map((m) => (
               <button
                 key={m.id}
@@ -700,7 +679,7 @@ export default function ResumeBuilderPage() {
                   'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all',
                   viewMode === m.id
                     ? 'bg-brand-600 text-white'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : 'text-slate-400 hover:text-slate-800'
                 )}
               >
                 {m.icon}
@@ -713,7 +692,7 @@ export default function ResumeBuilderPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e2433] border border-[#2d3748] text-slate-300 hover:border-slate-500 text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-slate-500 text-xs font-medium transition-all"
             >
               {copied ? (
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -724,7 +703,7 @@ export default function ResumeBuilderPage() {
             </button>
             <button
               onClick={downloadLatex}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e2433] border border-[#2d3748] text-slate-300 hover:border-slate-500 text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-slate-500 text-xs font-medium transition-all"
             >
               <FileCode2 className="w-3.5 h-3.5 text-brand-400" />
               .tex
@@ -740,7 +719,7 @@ export default function ResumeBuilderPage() {
         </div>
 
         {/* ── Info Bar ── */}
-        <div className="flex items-center gap-6 px-4 py-1.5 bg-[#0d1117] border-b border-[#1e2433] text-[11px] text-slate-500 flex-shrink-0">
+        <div className="flex items-center gap-6 px-4 py-1.5 bg-white border-b border-slate-200 text-[11px] text-slate-500 flex-shrink-0">
           <span className="flex items-center gap-1.5">
             <FileText className="w-3 h-3" />
             resume.tex
@@ -763,12 +742,12 @@ export default function ResumeBuilderPage() {
           {(viewMode === 'split' || viewMode === 'editor') && (
             <div
               className={cn(
-                'flex flex-col border-r border-[#1e2433]',
+                'flex flex-col border-r border-slate-200',
                 viewMode === 'split' ? 'w-1/2' : 'w-full'
               )}
             >
               {/* Editor Header */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#161b27] border-b border-[#1e2433]">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-slate-200">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-rose-500/70" />
                   <div className="w-3 h-3 rounded-full bg-amber-500/70" />
@@ -819,27 +798,28 @@ export default function ResumeBuilderPage() {
           {(viewMode === 'split' || viewMode === 'preview') && (
             <div
               className={cn(
-                'flex flex-col bg-[#f0ede8]',
+                'flex flex-col bg-slate-100',
                 viewMode === 'split' ? 'w-1/2' : 'w-full'
               )}
             >
               {/* Preview Header */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#161b27] border-b border-[#1e2433]">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-slate-200">
                 <Eye className="w-3.5 h-3.5 text-brand-400" />
-                <span className="text-xs text-slate-400">Live Preview — A4 / Letter</span>
+                <span className="text-xs text-slate-600">Live Preview — A4 / Letter</span>
                 <div className="ml-auto flex items-center gap-1">
-                  <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                  <Badge variant="secondary" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-500/20">
                     PDF Quality
                   </Badge>
                 </div>
               </div>
 
               {/* Preview iframe (A4 paper feel) */}
-              <div className="flex-1 overflow-auto bg-[#525659] p-6">
+              <div className="flex-1 overflow-auto bg-slate-200 p-6">
                 <div className="bg-white shadow-2xl mx-auto" style={{ width: '794px', minHeight: '1123px' }}>
                   <iframe
                     ref={iframeRef}
                     title="Resume Preview"
+                    srcDoc={previewDocument}
                     style={{ width: '100%', height: '1123px', border: 'none', display: 'block' }}
                     sandbox="allow-same-origin"
                   />
