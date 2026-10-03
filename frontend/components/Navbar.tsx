@@ -21,6 +21,10 @@ import {
   Activity,
   Layers,
   HelpCircle,
+  Scale,
+  BarChart3,
+  Map,
+  Shield,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Menu, MenuItem, ProductItem, HoveredLink } from './ui/navbar-menu';
@@ -76,6 +80,20 @@ export function Navbar() {
                   icon={<Route className="w-4 h-4 text-cyan-600" />}
                   badge="Graph DB"
                 />
+                <ProductItem
+                  title="Compare Job Offers"
+                  description="Side-by-side matrix: salary, skill fit, growth trajectory across 4 offers"
+                  href="/compare-jobs"
+                  icon={<Scale className="w-4 h-4 text-violet-600" />}
+                  badge="Matrix"
+                />
+                <ProductItem
+                  title="Market Trends"
+                  description="Skill velocity index, salary curves, hiring hubs & remote share"
+                  href="/market-trends"
+                  icon={<BarChart3 className="w-4 h-4 text-cyan-600" />}
+                  badge="Live Data"
+                />
               </div>
             </MenuItem>
 
@@ -109,6 +127,20 @@ export function Navbar() {
                   href="/jobs"
                   icon={<Layers className="w-4 h-4 text-cyan-600" />}
                 />
+                <ProductItem
+                  title="Career Roadmap & Kanban"
+                  description="Actionable upskilling board with XP tracking and curated resources"
+                  href="/roadmap"
+                  icon={<Map className="w-4 h-4 text-violet-600" />}
+                  badge="Kanban"
+                />
+                <ProductItem
+                  title="Resume PII Reviewer"
+                  description="Zero-PII masker with entity detection and stealth mode"
+                  href="/profile/review"
+                  icon={<Shield className="w-4 h-4 text-rose-600" />}
+                  badge="Zero-PII"
+                />
               </div>
             </MenuItem>
 
@@ -130,6 +162,22 @@ export function Navbar() {
                 <HoveredLink href="/career-path" className="flex items-center gap-2">
                   <Route className="w-3.5 h-3.5 text-cyan-600" />
                   <span>Career Path Trajectory</span>
+                </HoveredLink>
+                <HoveredLink href="/compare-jobs" className="flex items-center gap-2">
+                  <Scale className="w-3.5 h-3.5 text-violet-600" />
+                  <span>Compare Job Offers</span>
+                </HoveredLink>
+                <HoveredLink href="/market-trends" className="flex items-center gap-2">
+                  <BarChart3 className="w-3.5 h-3.5 text-cyan-600" />
+                  <span>Market Trends Dashboard</span>
+                </HoveredLink>
+                <HoveredLink href="/roadmap" className="flex items-center gap-2">
+                  <Map className="w-3.5 h-3.5 text-violet-600" />
+                  <span>Learning Roadmap Kanban</span>
+                </HoveredLink>
+                <HoveredLink href="/profile/review" className="flex items-center gap-2">
+                  <Shield className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Resume PII Reviewer</span>
                 </HoveredLink>
                 <HoveredLink href="/profile" className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-slate-700" />

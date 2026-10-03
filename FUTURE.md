@@ -8,8 +8,8 @@
 ## 📊 High-Level Status Dashboard
 
 ```
-Overall Architecture Completion:  45%
-├── Frontend (Next.js 14 + Aceternity + Shadcn): 75% [Advanced UI, 2D DAG Graph, Knapsack Solver, SHAP Diagnosis]
+Overall Architecture Completion:  52%
+├── Frontend (Next.js 14 + Aceternity + Shadcn): 100% [All 13 pages complete — Compare Jobs, PII Reviewer, Roadmap Kanban, Market Trends]
 ├── API Gateway & Contracts (NestJS TypeScript): 40% [Controllers, DTOs, Swagger, Mock Heuristics Active]
 ├── Persistence Layer (PostgreSQL, Qdrant, Redis): 25% [Docker-compose Configured, Schemas Documented]
 ├── ML Pipelines (Embeddings, LightGBM, GraphSage): 15% [Mathematical Models Documented, Python Stubs Ready]
@@ -200,10 +200,10 @@ Overall Architecture Completion:  45%
 | **2D Interactive Knowledge Graph** | `/skill-graph` | `[x] COMPLETED` | SVG DAG canvas, shortest bridge trajectory, node inspector drawer. |
 | **Skill Gap Analyzer** | `/skill-gap` | `[x] COMPLETED` | Multi-vector radar chart, competency matrix, missing skill priorities. |
 | **Career Path Visualization** | `/career-path` | `[x] COMPLETED` | Milestone timeline, progression tree. |
-| **Side-by-Side Job Comparison Matrix** | `/compare-jobs` | `[ ] PLANNED` | Comparing 2–4 job offers across comp, skills, and growth trajectory. |
-| **Interactive Resume Reviewer & PII Masker**| `/profile/review` | `[ ] PLANNED` | Visual PDF entity bounding box inspector with Zero-PII toggles. |
-| **Personalized Career Roadmap & Kanban** | `/roadmap` | `[ ] PLANNED` | Actionable learning kanban board with curated resources. |
-| **Job Market Trends Dashboard** | `/market-trends` | `[ ] PLANNED` | Skill demand velocity, salary distribution curves, remote market ratios. |
+| **Side-by-Side Job Comparison Matrix** | `/compare-jobs` | `[x] COMPLETED` | Comparing 2–4 job offers across comp, skills, growth trajectory, and ANVESH dimension scoring. |
+| **Interactive Resume Reviewer & PII Masker**| `/profile/review` | `[x] COMPLETED` | Click-to-mask entity detection, stealth mode, privacy score meter, section-by-section preview. |
+| **Personalized Career Roadmap & Kanban** | `/roadmap` | `[x] COMPLETED` | Actionable learning kanban with XP tracking, curated resources, level progression. |
+| **Job Market Trends Dashboard** | `/market-trends` | `[x] COMPLETED` | Skill velocity index, salary distribution curves (P25–P90), hiring hubs, remote/hybrid share. |
 
 ---
 
