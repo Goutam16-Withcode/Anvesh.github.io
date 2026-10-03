@@ -61,8 +61,8 @@ interface Template {
 const TEMPLATES: Template[] = [
   {
     id: 'modern-ml',
-    name: 'Modern ML Engineer',
-    description: 'Clean two-column with skills sidebar — ATS optimized',
+    name: 'ANVESH Signature ATS',
+    description: 'One-page, single-column resume tuned for ATS parsing',
     badge: 'Most Popular',
     color: 'brand',
     source: `\\documentclass[11pt,a4paper]{article}
@@ -389,7 +389,7 @@ const PREVIEW_CSS = `
     max-width: 8.5in;
     margin: 0 auto;
   }
-  .ltx-center { text-align: center; margin-bottom: 10pt; }
+  .ltx-center { text-align: center; margin-bottom: 7pt; }
   .ltx-section {
     font-size: 12pt;
     font-weight: bold;
@@ -397,7 +397,7 @@ const PREVIEW_CSS = `
     letter-spacing: 0.05em;
     border-bottom: 1.5px solid #1a1a1a;
     padding-bottom: 2pt;
-    margin: 12pt 0 6pt 0;
+    margin: 9pt 0 4pt 0;
     font-family: Arial, sans-serif;
   }
   .ltx-subsection {
@@ -428,7 +428,7 @@ const PREVIEW_CSS = `
     width: 100%;
   }
   .ltx-td { padding: 1pt 8pt 1pt 0; vertical-align: top; }
-  .ltx-link { color: #1e40af; text-decoration: none; }
+  .ltx-link { color: #4f46e5; text-decoration: none; }
   .ltx-link:hover { text-decoration: underline; }
   .ltx-huge-bold { font-size: 22pt; font-weight: bold; display: block; }
   .ltx-large { font-size: 16pt; display: block; }
