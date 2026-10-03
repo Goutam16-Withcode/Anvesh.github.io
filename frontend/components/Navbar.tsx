@@ -25,6 +25,7 @@ import {
   BarChart3,
   Map,
   Shield,
+  FileCode2,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Menu, MenuItem, ProductItem, HoveredLink } from './ui/navbar-menu';
@@ -141,6 +142,13 @@ export function Navbar() {
                   icon={<Shield className="w-4 h-4 text-rose-600" />}
                   badge="Zero-PII"
                 />
+                <ProductItem
+                  title="LaTeX Resume Builder"
+                  description="Monaco editor with live preview, 3 ATS templates, PDF download"
+                  href="/resume-builder"
+                  icon={<FileCode2 className="w-4 h-4 text-amber-600" />}
+                  badge="Live LaTeX"
+                />
               </div>
             </MenuItem>
 
@@ -178,6 +186,10 @@ export function Navbar() {
                 <HoveredLink href="/profile/review" className="flex items-center gap-2">
                   <Shield className="w-3.5 h-3.5 text-rose-600" />
                   <span>Resume PII Reviewer</span>
+                </HoveredLink>
+                <HoveredLink href="/resume-builder" className="flex items-center gap-2">
+                  <FileCode2 className="w-3.5 h-3.5 text-amber-500" />
+                  <span>LaTeX Resume Builder</span>
                 </HoveredLink>
                 <HoveredLink href="/profile" className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-slate-700" />
