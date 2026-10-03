@@ -243,13 +243,13 @@ vector database indexing (HNSW), and counterfactual explainability.
 \\section{Selected Publications}
 
 \\begin{enumerate}[leftmargin=*,topsep=4pt]
-  \\item \\textbf{Anvesh K.}, Smith J. "Hierarchical HNSW Indexing for Billion-Scale Job Retrieval."'
+  \\item \\textbf{Anvesh K.}, Smith J. "Hierarchical HNSW Indexing for Billion-Scale Job Retrieval."
   \\textit{NeurIPS 2025}. \\href{https://arxiv.org}{[PDF]}
 
-  \\item \\textbf{Anvesh K.}, Lee M. "LambdaMART with SHAP Explainability for Career Recommendation."'
+  \\item \\textbf{Anvesh K.}, Lee M. "LambdaMART with SHAP Explainability for Career Recommendation."
   \\textit{RecSys 2024}. \\href{https://arxiv.org}{[PDF]}
 
-  \\item \\textbf{Anvesh K.} "Counterfactual Simulation for Deterministic Career Intelligence."'
+  \\item \\textbf{Anvesh K.} "Counterfactual Simulation for Deterministic Career Intelligence."
   \\textit{ICML 2024 Workshop}. \\href{https://arxiv.org}{[PDF]}
 \\end{enumerate}
 
