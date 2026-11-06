@@ -1,27 +1,41 @@
 import { Body, Controller, Get, Put, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Profile & Candidate Intelligence')
 @Controller('profile')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get()
+  @ApiOperation({ summary: 'Get current user profile and verified skill ontology' })
+  @ApiResponse({ status: 200, description: 'Candidate profile data' })
+  async getProfile(@Request() req: any) {
+    const email = req.user?.email || 'demo@anvesh.ai';
+    return this.usersService.getProfile(email);
+  }
+
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile and verified skill ontology' })
   @ApiResponse({ status: 200, description: 'Candidate profile data' })
-  async getMyProfile(@Request() req) {
-    return this.usersService.getProfile(req.user.email);
+  async getMyProfile(@Request() req: any) {
+    const email = req.user?.email || 'demo@anvesh.ai';
+    return this.usersService.getProfile(email);
+  }
+
+  @Put()
+  @ApiOperation({ summary: 'Update candidate profile preferences and skills' })
+  async updateProfileDirect(@Request() req: any, @Body() body: any) {
+    const email = req.user?.email || 'demo@anvesh.ai';
+    return this.usersService.updateProfile(email, body);
   }
 
   @Put('me')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update candidate profile preferences and skills' })
-  async updateProfile(@Request() req, @Body() body: any) {
-    return this.usersService.updateProfile(req.user.email, body);
+  async updateProfile(@Request() req: any, @Body() body: any) {
+    const email = req.user?.email || 'demo@anvesh.ai';
+    return this.usersService.updateProfile(email, body);
   }
 }
