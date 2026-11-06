@@ -8,3 +8,4 @@ import { CareerPathsService } from './career-paths.service';
   exports: [CareerPathsService],
 })
 export class CareerPathsModule {}
+

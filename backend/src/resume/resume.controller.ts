@@ -23,3 +23,4 @@ export class ResumeController {
     return this.resumeService.parseResume(body);
   }
 }
+

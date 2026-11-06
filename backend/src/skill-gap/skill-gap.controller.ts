@@ -14,3 +14,4 @@ export class SkillGapController {
     return this.skillGapService.getSkillGap(roleId);
   }
 }
+

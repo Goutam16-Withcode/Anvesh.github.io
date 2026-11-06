@@ -8,3 +8,4 @@ import { ResumeService } from './resume.service';
   exports: [ResumeService],
 })
 export class ResumeModule {}
+
