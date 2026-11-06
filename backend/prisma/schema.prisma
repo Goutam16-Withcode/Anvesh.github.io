@@ -1,0 +1,207 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  hashedPassword  String
+  fullName        String
+  roleType        String           @default("candidate")
+  photoUrl        String?
+  provider        String           @default("local")
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  profile         Profile?
+  interactions    Interaction[]
+  savedJobs       SavedJob[]
+  applications    Application[]
+  recommendations Recommendation[]
+
+  @@map("users")
+}
+
+model Profile {
+  id                  String      @id @default(uuid())
+  userId              String      @unique
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline            String?
+  summary             String?
+  yearsOfExperience   Float       @default(0.0)
+  currentRole         String?
+  location            String?
+  preferredWorkMode   String      @default("REMOTE") // REMOTE, HYBRID, ONSITE, ANY
+  targetMinSalary     Int?
+  educationHistory    Json?       // array of { degree, institution, year }
+  experienceHistory   Json?       // array of { role, company, duration, bullets }
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  userSkills          UserSkill[]
+
+  @@map("profiles")
+}
+
+model Skill {
+  id             String      @id @default(uuid())
+  canonicalName  String      @unique
+  category       String      // Programming, Framework, Cloud, ML, DevOps, etc.
+  aliases        Json?       // array of string synonyms
+  createdAt      DateTime    @default(now())
+
+  userSkills     UserSkill[]
+  jobSkills      JobSkill[]
+
+  @@map("skills")
+}
+
+model UserSkill {
+  id                String   @id @default(uuid())
+  profileId         String
+  profile           Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skillId           String
+  skill             Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiencyLevel  Int      @default(3) // 1-5 scale or expert
+  yearsUsed         Float    @default(1.0)
+  isVerified        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@unique([profileId, skillId])
+  @@map("user_skills")
+}
+
+model Role {
+  id           String   @id @default(uuid())
+  title        String   @unique
+  family       String   // Artificial Intelligence, Systems Engineering, etc.
+  description  String?
+  coreSkillIds Json?    // array of skill names or IDs
+  medianSalary Int      @default(150000)
+  createdAt    DateTime @default(now())
+
+  jobs         Job[]
+
+  @@map("roles")
+}
+
+model Company {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  domain     String?
+  logoUrl    String?
+  location   String?
+  sizeBand   String?  // Startup, Scaleup, Enterprise, Tier-1
+  websiteUrl String?
+  createdAt  DateTime @default(now())
+
+  jobs       Job[]
+
+  @@map("companies")
+}
+
+model Job {
+  id                 String           @id @default(uuid())
+  companyId          String
+  company            Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  roleId             String?
+  role               Role?            @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  title              String
+  description        String
+  employmentType     String           @default("FULL_TIME")
+  workMode           String           @default("REMOTE") // REMOTE, HYBRID, ONSITE
+  location           String
+  minExperienceYears Int              @default(0)
+  maxExperienceYears Int              @default(10)
+  minSalary          Int              @default(0)
+  maxSalary          Int              @default(0)
+  currency           String           @default("USD")
+  externalUrl        String?
+  dedupHash          String?          @unique
+  isActive           Boolean          @default(true)
+  postedAt           DateTime         @default(now())
+  expiresAt          DateTime?
+  createdAt          DateTime         @default(now())
+
+  jobSkills          JobSkill[]
+  interactions       Interaction[]
+  savedJobs          SavedJob[]
+  applications       Application[]
+  recommendations    Recommendation[]
+
+  @@map("jobs")
+}
+
+model JobSkill {
+  id          String   @id @default(uuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skillId     String
+  skill       Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  isMandatory Boolean  @default(true)
+  weight      Int      @default(1)
+
+  @@unique([jobId, skillId])
+  @@map("job_skills")
+}
+
+model Interaction {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId             String
+  job               Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  interactionType   String   // CLICK, SAVE, APPLY, DISMISS, VIEW
+  rankPosition      Int?
+  dwellTimeSeconds  Int?     @default(0)
+  createdAt         DateTime @default(now())
+
+  @@map("interactions")
+}
+
+model SavedJob {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId      String
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  folderName String   @default("default")
+  savedAt    DateTime @default(now())
+
+  @@unique([userId, jobId])
+  @@map("saved_jobs")
+}
+
+model Application {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status    String   @default("APPLIED") // APPLIED, REVIEWING, INTERVIEW, OFFER, REJECTED
+  appliedAt DateTime @default(now())
+
+  @@unique([userId, jobId])
+  @@map("applications")
+}
+
+model Recommendation {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId           String
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  ltrScore        Float
+  semanticScore   Float?
+  skillMatchScore Float?
+  rankPosition    Int
+  generatedAt     DateTime @default(now())
+
+  @@map("recommendations")
+}

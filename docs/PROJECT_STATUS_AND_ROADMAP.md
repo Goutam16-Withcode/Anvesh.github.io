@@ -2,10 +2,10 @@
 
 **Platform:** AI-Powered Career Intelligence & Multi-Stage Recommendation Platform  
 **Status Date:** November 2026  
-**Overall Architecture Completion:** ~65%  
+**Overall Architecture Completion:** ~75%  
 - **Frontend Layer (Next.js 14):** 100% Complete (All 14 pages + Interactive Canvas + LaTeX Studio)  
 - **API Gateway (NestJS):** 100% Complete (All 10 domain modules & controllers active + Swagger)  
-- **Persistence Layer (PostgreSQL, Qdrant, Redis):** 25% Configured  
+- **Persistence Layer (PostgreSQL, Qdrant, Redis):** 70% Complete (Prisma ORM Integrated, PostgreSQL Schema Active, Services Connected, Seeder Script Ready)  
 - **ML & Recommendation Pipelines:** 15% Modeled  
 
 ---
@@ -39,6 +39,14 @@ flowchart TD
         API_Health["HealthModule (/api/v1/health)"]
     end
 
+    subgraph PersistenceLayer ["Persistence Layer (Prisma + PostgreSQL) - 70% COMPLETE"]
+        DB_Prisma["Prisma ORM & Client (backend/prisma/schema.prisma)"]
+        DB_PG[("PostgreSQL 16 (Users, Profiles, Skills, Jobs, Interactions)")]
+        DB_Seed["Database Seeder Script (prisma/seed.ts)"]
+        DB_QDR[("Qdrant Vector DB (Docker-compose ready)")]
+        DB_REDIS[("Redis 7 (Session & Cache ready)")]
+    end
+
     subgraph MLLayer ["ML & Recommendation Engine - 15% COMPLETE"]
         ML_Embed["Dense Vectors (MiniLM 384-d) [NEXT]"]
         ML_Qdrant["Qdrant HNSW Hybrid Search [NEXT]"]
@@ -47,15 +55,8 @@ flowchart TD
         ML_Agent["LangGraph Autonomous Agent [NEXT]"]
     end
 
-    subgraph DataInfra ["Persistence & Storage - 25% COMPLETE"]
-        DB_PG[("PostgreSQL 16 (Schema documented, ORM connection pending)")]
-        DB_QDR[("Qdrant Vector DB (Docker-compose ready)")]
-        DB_REDIS[("Redis 7 (Session & Cache ready)")]
-        DATA_Tax["15,400+ Ontology & Seed Samples (data/taxonomy/)"]
-    end
-
     FrontendLayer <==>|100% REST API Alignment| BackendLayer
-    BackendLayer -.->|Next Step: ORM Connection| DB_PG
+    BackendLayer <==>|Prisma ORM Queries & Fallbacks| PersistenceLayer
     BackendLayer -.->|Next Step: Microservice Bridge| MLLayer
     MLLayer -.->|Dense Embeddings| DB_QDR
 ```

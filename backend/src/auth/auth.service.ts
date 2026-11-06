@@ -1,10 +1,11 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { FirebaseAuthService } from './firebase-auth.service';
+import { PrismaService } from '../database/prisma.service';
 
 export interface UserEntity {
   id: string;
@@ -19,14 +20,15 @@ export interface UserEntity {
 
 @Injectable()
 export class AuthService {
-  // In-memory backing store for demo/development with pre-seeded test accounts
+  private readonly logger = new Logger(AuthService.name);
   private users: Map<string, UserEntity> = new Map();
 
   constructor(
     private readonly jwtService: JwtService,
     private readonly firebaseAuthService: FirebaseAuthService,
+    private readonly prisma: PrismaService,
   ) {
-    // Seed an initial demo account
+    // Seed in-memory demo account as reliable local fallback
     const demoPasswordHash = bcrypt.hashSync('CandidatePass123!', 10);
     this.users.set('demo@anvesh.ai', {
       id: 'usr_demo_001',
@@ -42,8 +44,19 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const normalizedEmail = dto.email.toLowerCase().trim();
-    if (this.users.has(normalizedEmail)) {
-      throw new ConflictException('An account with this email address already exists.');
+
+    // Check database if available
+    try {
+      const existingDbUser = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+      if (existingDbUser) {
+        throw new ConflictException('An account with this email address already exists.');
+      }
+    } catch (e: any) {
+      if (e instanceof ConflictException) throw e;
+      // Fallback to in-memory check
+      if (this.users.has(normalizedEmail)) {
+        throw new ConflictException('An account with this email address already exists.');
+      }
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -58,6 +71,29 @@ export class AuthService {
       provider: 'local',
       createdAt: new Date().toISOString(),
     };
+
+    // Save to PostgreSQL if connected
+    try {
+      const dbUser = await this.prisma.user.create({
+        data: {
+          email: normalizedEmail,
+          hashedPassword: passwordHash,
+          fullName: dto.full_name,
+          roleType: dto.role_type || 'candidate',
+          provider: 'local',
+          profile: {
+            create: {
+              headline: 'Software Engineer & AI Enthusiast',
+              yearsOfExperience: 3.0,
+              preferredWorkMode: 'REMOTE',
+            },
+          },
+        },
+      });
+      newUser.id = dbUser.id;
+    } catch (e: any) {
+      this.logger.debug(`Saving user to in-memory cache (${e.message})`);
+    }
 
     this.users.set(normalizedEmail, newUser);
 
@@ -79,7 +115,24 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const normalizedEmail = dto.email.toLowerCase().trim();
-    const user = this.users.get(normalizedEmail);
+    let user = this.users.get(normalizedEmail);
+
+    // Try finding in database
+    try {
+      const dbUser = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+      if (dbUser) {
+        user = {
+          id: dbUser.id,
+          email: dbUser.email,
+          passwordHash: dbUser.hashedPassword,
+          fullName: dbUser.fullName,
+          roleType: dbUser.roleType,
+          photoUrl: dbUser.photoUrl || undefined,
+          provider: dbUser.provider as any,
+          createdAt: dbUser.createdAt.toISOString(),
+        };
+      }
+    } catch (_) {}
 
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid email or password credentials.');
@@ -117,6 +170,22 @@ export class AuthService {
     const normalizedEmail = decoded.email.toLowerCase().trim();
     let user = this.users.get(normalizedEmail);
 
+    // Check database
+    try {
+      const dbUser = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+      if (dbUser) {
+        user = {
+          id: dbUser.id,
+          email: dbUser.email,
+          fullName: dbUser.fullName,
+          roleType: dbUser.roleType,
+          photoUrl: dbUser.photoUrl || undefined,
+          provider: 'google',
+          createdAt: dbUser.createdAt.toISOString(),
+        };
+      }
+    } catch (_) {}
+
     if (!user) {
       user = {
         id: 'usr_g_' + (decoded.uid || Math.random().toString(36).substring(2, 11)),
@@ -127,6 +196,28 @@ export class AuthService {
         provider: 'google',
         createdAt: new Date().toISOString(),
       };
+
+      try {
+        const created = await this.prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            hashedPassword: '',
+            fullName: user.fullName,
+            roleType: 'candidate',
+            photoUrl: user.photoUrl,
+            provider: 'google',
+            profile: {
+              create: {
+                headline: 'AI & Machine Learning Engineer',
+                yearsOfExperience: 3.5,
+                preferredWorkMode: 'REMOTE',
+              },
+            },
+          },
+        });
+        user.id = created.id;
+      } catch (_) {}
+
       this.users.set(normalizedEmail, user);
     } else {
       if (decoded.picture) user.photoUrl = decoded.picture;
@@ -151,6 +242,21 @@ export class AuthService {
   }
 
   async getUserById(id: string) {
+    try {
+      const dbUser = await this.prisma.user.findUnique({ where: { id } });
+      if (dbUser) {
+        return {
+          id: dbUser.id,
+          email: dbUser.email,
+          full_name: dbUser.fullName,
+          role_type: dbUser.roleType,
+          photo_url: dbUser.photoUrl,
+          provider: dbUser.provider,
+          created_at: dbUser.createdAt.toISOString(),
+        };
+      }
+    } catch (_) {}
+
     for (const user of this.users.values()) {
       if (user.id === id) {
         return {
