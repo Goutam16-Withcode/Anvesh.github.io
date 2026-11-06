@@ -38,6 +38,7 @@ import { SkillPill } from '@/components/SkillGraph';
 import {
   api,
   CandidateProfile,
+  INITIAL_CANDIDATE_PROFILE,
   MOCK_CANDIDATE_PROFILE,
   VerifiedSkill,
   WorkExperience,
@@ -46,7 +47,7 @@ import {
 import { formatNumber, formatSalary } from '@/lib/utils';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<CandidateProfile>(MOCK_CANDIDATE_PROFILE);
+  const [profile, setProfile] = useState<CandidateProfile>(INITIAL_CANDIDATE_PROFILE);
   const [activeTab, setActiveTab] = useState<'resume' | 'skills' | 'experience' | 'preferences'>('resume');
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -70,13 +71,48 @@ export default function ProfilePage() {
           return;
         }
       }
+
+      // Check if logged in user exists
+      const storedUser = localStorage.getItem('anvesh_user');
+      let baseProfile = INITIAL_CANDIDATE_PROFILE;
+      if (storedUser) {
+        const u = JSON.parse(storedUser);
+        baseProfile = {
+          ...INITIAL_CANDIDATE_PROFILE,
+          fullName: u.full_name || 'Candidate',
+          email: u.email || '',
+        };
+      }
+
       const data = await api.getProfile();
-      if (data && data.fullName) {
+      if (data && data.fullName && data.fullName !== 'Goutam Explorer') {
         setProfile(data);
+      } else {
+        setProfile(baseProfile);
       }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleLoadSampleProfile = () => {
+    setProfile(MOCK_CANDIDATE_PROFILE);
+    try {
+      localStorage.setItem('anvesh_profile', JSON.stringify(MOCK_CANDIDATE_PROFILE));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('anvesh_profile_updated'));
+      }
+    } catch (_) {}
+  };
+
+  const handleResetProfile = () => {
+    setProfile(INITIAL_CANDIDATE_PROFILE);
+    try {
+      localStorage.removeItem('anvesh_profile');
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('anvesh_profile_updated'));
+      }
+    } catch (_) {}
   };
 
   const handleSaveProfile = async () => {
@@ -240,7 +276,25 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 self-end md:self-center shrink-0">
+            <div className="flex items-center gap-2.5 self-end md:self-center shrink-0 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLoadSampleProfile}
+                className="text-xs font-semibold text-slate-700 hover:text-brand-600"
+              >
+                <Sparkles className="w-3.5 h-3.5 mr-1 text-brand-500" />
+                Fill Sample Demo
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetProfile}
+                className="text-xs text-slate-500 hover:text-red-600"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                Clear
+              </Button>
               <Button
                 onClick={handleSaveProfile}
                 disabled={isSaving}

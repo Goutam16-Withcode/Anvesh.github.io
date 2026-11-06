@@ -252,7 +252,7 @@ const RISK_CONFIG = {
 
 export default function ProfileReviewPage() {
   const [entities, setEntities] = useState<PIIEntity[]>(MOCK_PII_ENTITIES);
-  const [uploaded, setUploaded] = useState(true); // pre-loaded for demo
+  const [uploaded, setUploaded] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [stealth, setStealth] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -652,6 +652,18 @@ export default function ProfileReviewPage() {
                       Drop your resume here
                     </div>
                     <div className="text-sm text-slate-400">PDF, DOCX supported</div>
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setUploaded(true);
+                        }}
+                        className="text-xs font-semibold text-brand-600 hover:text-brand-700 underline"
+                      >
+                        ⚡ Or preview with sample demo resume
+                      </button>
+                    </div>
                   </div>
                   <input
                     ref={fileRef}

@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>(['Kubernetes', 'Go']);
   const [simulation, setSimulation] = useState<WhatIfResult | null>(null);
+  const [profileSkills, setProfileSkills] = useState<string[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -59,6 +60,17 @@ export default function DashboardPage() {
       setRecommendations(recData.recommendations);
       const simData = await api.simulateWhatIf(selectedSkills);
       setSimulation(simData);
+
+      // Load profile skills if candidate saved profile
+      const stored = localStorage.getItem('anvesh_profile');
+      if (stored) {
+        const p = JSON.parse(stored);
+        if (p.skills && Array.isArray(p.skills) && p.skills.length > 0) {
+          setProfileSkills(p.skills.map((s: any) => (typeof s === 'string' ? s : s.name)));
+        } else {
+          setProfileSkills([]);
+        }
+      }
     } catch (e) {
       console.error(e);
     }
@@ -192,7 +204,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="hidden sm:block text-left">
                   <div className="text-xs font-bold text-slate-900">{user?.full_name || 'Candidate User'}</div>
-                  <div className="text-[10px] text-slate-500">{user?.email || 'demo@anvesh.ai'}</div>
+                  <div className="text-[10px] text-slate-500">{user?.email || 'Guest Session'}</div>
                 </div>
               </Link>
             </div>
@@ -213,19 +225,30 @@ export default function DashboardPage() {
           <div className="space-y-2">
             <Badge variant="brand">Candidate Profile &bull; Active HNSW Vector</Badge>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Welcome back, {user?.full_name || 'Goutam'}
+              {user?.full_name ? `Welcome back, ${user.full_name}` : 'Welcome to ANVESH Career Discovery'}
             </h1>
             <p className="text-sm text-slate-600 max-w-2xl">
-              Your profile is synchronized with the canonical skill ontology. Evaluated across 104,250 live catalog postings.
+              Deterministic career intelligence evaluated across 104,250 live catalog postings with canonical skill graph normalization.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="brand">Python (4.5 yrs)</Badge>
-            <Badge variant="brand">PyTorch (3.0 yrs)</Badge>
-            <Badge variant="brand">FastAPI</Badge>
-            <Badge variant="emerald">LightGBM</Badge>
-            <Badge variant="slate">Docker</Badge>
+          <div className="flex flex-wrap gap-2 items-center">
+            {profileSkills.length > 0 ? (
+              profileSkills.slice(0, 5).map((sk) => (
+                <Badge key={sk} variant="brand">{sk}</Badge>
+              ))
+            ) : (
+              <>
+                <Badge variant="outline" className="border-slate-300 text-slate-600">15,400+ Ontology Nodes</Badge>
+                <Badge variant="outline" className="border-slate-300 text-slate-600">HNSW Vector Space</Badge>
+                <Link href="/profile">
+                  <Badge variant="brand" className="cursor-pointer hover:bg-brand-600">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    + Upload Resume
+                  </Badge>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
