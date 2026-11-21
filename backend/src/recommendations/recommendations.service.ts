@@ -147,6 +147,46 @@ export class RecommendationsService {
     ];
   }
 
+  private async rankWithMLEngine(candidate: any, jobs: any[], limit: number): Promise<any[] | null> {
+    try {
+      const mlUrl = process.env.ML_SERVICE_URL || 'http://localhost:8001';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+      const res = await fetch(`${mlUrl}/rank`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidate: candidate || { headline: 'Senior AI Engineer', skills: ['Python', 'PyTorch', 'FastAPI'] },
+          jobs: jobs.map((j) => ({
+            id: j.id,
+            title: j.title,
+            description: j.description,
+            required_skills: j.required_skills || [],
+            preferred_skills: j.preferred_skills || [],
+            company: typeof j.company === 'string' ? { name: j.company } : j.company,
+            work_mode: j.work_mode,
+            min_experience_years: j.min_experience_years || 2,
+            max_experience_years: j.max_experience_years || 6,
+          })),
+          top_k: limit,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data: any = await res.json();
+        if (data && data.recommendations && data.recommendations.length > 0) {
+          return data.recommendations;
+        }
+      }
+    } catch (e: any) {
+      this.logger.debug(`ML service offline or timed out (${e.message}), using deterministic ranking.`);
+    }
+    return null;
+  }
+
   async getRecommendations(options: { limit?: number; work_mode?: string; diversity_factor?: number } = {}) {
     try {
       const dbJobs = await this.prisma.job.findMany({
