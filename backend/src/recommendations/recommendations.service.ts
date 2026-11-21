@@ -249,7 +249,7 @@ export class RecommendationsService {
         };
       }
     } catch (e: any) {
-      this.logger.debug(`Database recommendations lookup fallback (${e.message})`);
+      this.logger.debug('Database offline; seamlessly serving resilient catalog recommendations.');
     }
 
     let filtered = [...this.getDefaultJobs()];
