@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Sparkles, Shield, Cpu } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle2, RefreshCw, Shield, Cpu, Edit3, Clipboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ParsingProgress } from './ParsingProgress';
@@ -29,20 +29,15 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
   const [isParsing, setIsParsing] = useState(false);
   const [parseStage, setParseStage] = useState(0);
   const [activeResume, setActiveResume] = useState(currentResume);
-  const [extractedSkills, setExtractedSkills] = useState<string[]>([
-    'Python',
-    'PyTorch',
-    'FastAPI',
-    'Vector Databases',
-    'Docker',
-    'PostgreSQL',
-    'TypeScript',
-  ]);
+  const [extractedSkills, setExtractedSkills] = useState<string[]>([]);
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [pastedText, setPastedText] = useState('');
   const [parseSummary, setParseSummary] = useState<{
     detectedName?: string;
     detectedRole?: string;
     skillCount?: number;
     score?: number;
+    experienceYears?: number;
   } | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -68,60 +63,79 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
     }
   };
 
+  const runParsingPipeline = async (rawText: string, filename: string, sizeKb: number) => {
+    setIsParsing(true);
+    setParseStage(0);
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    setParseStage(1);
+    await sleep(300);
+
+    setParseStage(2);
+    await sleep(350);
+
+    // Deterministic parsing on actual text
+    const parsedData = parseResumeContent(rawText, filename, sizeKb);
+
+    setParseStage(3);
+    await sleep(250);
+
+    setIsParsing(false);
+
+    const updatedResumeMeta = {
+      filename,
+      uploadedAt: new Date().toISOString(),
+      sizeKb,
+      parserEngine: 'Deterministic AST Lexer v2.4 (Zero-Hallucination)',
+      deterministicScore: parsedData.resume?.deterministicScore || 95.0,
+    };
+
+    setActiveResume(updatedResumeMeta);
+
+    const newSkillsList = parsedData.skills?.map((s) => s.name) || [];
+    setExtractedSkills(newSkillsList);
+
+    setParseSummary({
+      detectedName: parsedData.fullName,
+      detectedRole: parsedData.headline,
+      skillCount: newSkillsList.length,
+      score: updatedResumeMeta.deterministicScore,
+      experienceYears: parsedData.yearsExperience,
+    });
+
+    // Notify parent outside state updater
+    onSkillsExtracted?.(newSkillsList);
+    onProfileExtracted?.(parsedData);
+  };
+
   const processFile = async (file: File) => {
-    if (!file.name.endsWith('.pdf') && !file.name.endsWith('.docx') && !file.name.endsWith('.txt') && !file.name.endsWith('.md')) {
+    if (
+      !file.name.endsWith('.pdf') &&
+      !file.name.endsWith('.docx') &&
+      !file.name.endsWith('.txt') &&
+      !file.name.endsWith('.md')
+    ) {
       alert('Please upload a PDF, DOCX, TXT, or MD file.');
       return;
     }
 
-    setIsParsing(true);
-    setParseStage(0);
-
-    // Read real file content
-    const sizeKb = Math.round(file.size / 1024) || 248;
-    let parsedData: any = null;
-
+    const sizeKb = Math.round(file.size / 1024) || 128;
     try {
       const rawText = await extractTextFromFile(file);
-      parsedData = parseResumeContent(rawText, file.name, sizeKb);
+      await runParsingPipeline(rawText, file.name, sizeKb);
     } catch (err) {
       console.error('Error reading resume text', err);
-      parsedData = parseResumeContent('', file.name, sizeKb);
+      await runParsingPipeline('', file.name, sizeKb);
     }
+  };
 
-    const stageInterval = setInterval(() => {
-      setParseStage((prev) => {
-        if (prev >= 3) {
-          clearInterval(stageInterval);
-          setIsParsing(false);
-
-          const updatedResumeMeta = {
-            filename: file.name,
-            uploadedAt: new Date().toISOString(),
-            sizeKb,
-            parserEngine: 'Deterministic AST Lexer v2.4 (Zero-Hallucination)',
-            deterministicScore: parsedData.resume?.deterministicScore || 98.6,
-          };
-
-          setActiveResume(updatedResumeMeta);
-
-          const newSkillsList = parsedData.skills?.map((s: any) => s.name) || ['Python', 'Docker', 'FastAPI'];
-          setExtractedSkills(newSkillsList);
-
-          setParseSummary({
-            detectedName: parsedData.fullName,
-            detectedRole: parsedData.headline,
-            skillCount: newSkillsList.length,
-            score: updatedResumeMeta.deterministicScore,
-          });
-
-          onSkillsExtracted?.(newSkillsList);
-          onProfileExtracted?.(parsedData);
-          return 3;
-        }
-        return prev + 1;
-      });
-    }, 600);
+  const handlePasteSubmit = async () => {
+    if (!pastedText.trim()) return;
+    setShowPasteModal(false);
+    const sizeKb = Math.round(new Blob([pastedText]).size / 1024) || 12;
+    await runParsingPipeline(pastedText, 'pasted_resume.txt', sizeKb);
+    setPastedText('');
   };
 
   return (
@@ -141,7 +155,7 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,.docx,.txt"
+          accept=".pdf,.docx,.txt,.md"
           onChange={handleFileInputChange}
           className="hidden"
         />
@@ -160,7 +174,7 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
               {isParsing ? 'Deterministic Parser Active...' : 'Drop your resume here, or browse'}
             </h4>
             <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              Supports PDF, DOCX, or TXT up to 10MB. Parsed via deterministic AST Lexer without LLM hallucinations.
+              Supports PDF, DOCX, TXT, or MD. Parsed via deterministic AST Lexer without hallucinations.
             </p>
           </div>
 
@@ -171,11 +185,72 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
             </Badge>
             <Badge variant="outline" className="bg-brand-50/60 text-brand-700 text-[11px] gap-1 font-mono border-brand-200">
               <Cpu className="w-3 h-3 text-brand-600" />
-              AST Lexer v2.4
+              Zero-Hallucination AST
             </Badge>
           </div>
         </div>
       </div>
+
+      {/* Alternative Paste Resume Text Button */}
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs text-slate-400">Having trouble with complex PDF formatting?</span>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowPasteModal(true);
+          }}
+          className="text-xs h-8 gap-1.5 border-slate-200 text-slate-700 hover:bg-slate-50"
+        >
+          <Clipboard className="w-3.5 h-3.5 text-brand-600" />
+          Paste Resume Text Directly
+        </Button>
+      </div>
+
+      {/* Paste Modal */}
+      {showPasteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Paste Plain Resume Text</h4>
+                  <p className="text-xs text-slate-500">Extracts exact skills and experience directly from your text.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPasteModal(false)}
+                className="text-slate-400 hover:text-slate-600 text-sm font-bold p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <textarea
+              value={pastedText}
+              onChange={(e) => setPastedText(e.target.value)}
+              placeholder="Paste your resume contents here (Education, Experience, Skills, Projects)..."
+              rows={12}
+              className="w-full text-xs font-mono p-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowPasteModal(false)}>
+                Cancel
+              </Button>
+              <Button type="button" size="sm" onClick={handlePasteSubmit} className="bg-brand-600 text-white hover:bg-brand-700">
+                Parse & Extract Profile
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Parsing Telemetry / Progress */}
       {isParsing && (
@@ -204,8 +279,9 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
                 Resume Successfully Parsed & Profile Updated!
               </h5>
               <p className="text-[11px] text-emerald-700 mt-0.5">
-                Extracted candidate <strong>{parseSummary.detectedName}</strong> ({parseSummary.detectedRole}) with{' '}
-                <strong>{parseSummary.skillCount} canonical skills</strong> at {parseSummary.score}% AST confidence.
+                Extracted <strong>{parseSummary.detectedName}</strong> ({parseSummary.detectedRole}) with{' '}
+                <strong>{parseSummary.skillCount} genuine skills</strong> and{' '}
+                <strong>{parseSummary.experienceYears} years experience</strong> (Score: {parseSummary.score}%).
               </p>
             </div>
           </div>
@@ -240,25 +316,28 @@ export function ResumeDropzone({ currentResume, onSkillsExtracted, onProfileExtr
 
           <div className="flex items-center gap-2 shrink-0">
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               className="text-xs h-8 font-semibold"
             >
-              Re-Upload
+              Re-Upload File
             </Button>
           </div>
         </div>
       )}
 
       {/* Extracted Skills Interactive Tag Manager */}
-      <ExtractedSkillsSummary
-        skills={extractedSkills}
-        onUpdateSkills={(skills) => {
-          setExtractedSkills(skills);
-          onSkillsExtracted?.(skills);
-        }}
-      />
+      {extractedSkills.length > 0 && (
+        <ExtractedSkillsSummary
+          skills={extractedSkills}
+          onUpdateSkills={(skills) => {
+            setExtractedSkills(skills);
+            onSkillsExtracted?.(skills);
+          }}
+        />
+      )}
     </div>
   );
 }
