@@ -47,6 +47,22 @@ class RankRequest(BaseModel):
     top_k: Optional[int] = 20
     diversity_factor: Optional[float] = 0.35
 
+@app.get("/")
+def root():
+    return {
+        "service": "ANVESH ML Microservice",
+        "status": "online",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "endpoints": {
+            "health": "/health",
+            "docs": "/docs",
+            "embed": "POST /embed",
+            "rank": "POST /rank",
+            "explain": "POST /explain",
+        },
+    }
+
 @app.get("/health")
 def health_check():
     return {
