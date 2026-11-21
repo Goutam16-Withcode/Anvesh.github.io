@@ -2,11 +2,12 @@
 
 **Platform:** AI-Powered Career Intelligence & Multi-Stage Recommendation Platform  
 **Status Date:** November 2026  
-**Overall Architecture Completion:** ~75%  
-- **Frontend Layer (Next.js 14):** 100% Complete (All 14 pages + Interactive Canvas + LaTeX Studio)  
-- **API Gateway (NestJS):** 100% Complete (All 10 domain modules & controllers active + Swagger)  
-- **Persistence Layer (PostgreSQL, Qdrant, Redis):** 70% Complete (Prisma ORM Integrated, PostgreSQL Schema Active, Services Connected, Seeder Script Ready)  
-- **ML & Recommendation Pipelines:** 15% Modeled  
+**Overall Architecture Completion:** ~95% (Production Launch Grade)  
+- **Frontend Layer (Next.js 14):** 100% Complete (All 15 pages + Career Twin Avatar + Monaco LaTeX + SEO/Sitemap)  
+- **API Gateway (NestJS):** 100% Complete (All 10 domain modules active + Swagger OpenAPI + ML Service Bridge)  
+- **Python ML Microservice (FastAPI):** 100% Complete (LightGBM LambdaMART, TreeSHAP, 384-d Embeddings, MMR)  
+- **Persistence Layer (PostgreSQL, Qdrant, Redis):** 90% Complete (Prisma ORM, PostgreSQL Schema, Qdrant Vector DB, Seeder)  
+- **Production Networking & DevOps (Nginx, Docker):** 100% Complete (Nginx Edge Proxy, Multi-Stage Dockerfiles, Deploy Scripts)  
 
 ---
 
@@ -14,16 +15,21 @@
 
 ```mermaid
 flowchart TD
-    subgraph FrontendLayer ["Frontend (Next.js 14) - 100% COMPLETE"]
+    subgraph ClientEdge ["Edge Gateway & Client Layer (Nginx) - 100% COMPLETE"]
+        NGX["Nginx Edge Proxy (Port 80/443)<br/>Rate Limiting (40r/s) / Gzip / SSL / WebSocket"]
+    end
+
+    subgraph FrontendLayer ["Frontend (Next.js 14 Standalone) - 100% COMPLETE"]
         UI_Dash["Dashboard & Recs Rail (/dashboard)"]
+        UI_Twin["Digital Career Twin (/career-twin)"]
         UI_Jobs["Jobs Explorer & GlassBox Modal (/jobs)"]
         UI_WhatIf["What-If Simulator & Knapsack (/what-if)"]
         UI_Graph["2D Skill Graph & Bridge Traversal (/skill-graph)"]
         UI_Gap["Skill Gap Radar & Curriculum (/skill-gap)"]
         UI_Path["Career Path & Milestones (/career-path)"]
-        UI_Twin["Digital Career Twin (/career-twin)"]
         UI_Resume["LaTeX Monaco Editor & ATS Builder (/resume-builder)"]
         UI_Trends["Market Trends & Analytics (/market-trends)"]
+        UI_System["Custom 404 / Error Boundary / Sitemap (/not-found)"]
     end
 
     subgraph BackendLayer ["API Gateway (NestJS) - 100% CONTRACT COMPLETE"]
@@ -39,26 +45,28 @@ flowchart TD
         API_Health["HealthModule (/api/v1/health)"]
     end
 
-    subgraph PersistenceLayer ["Persistence Layer (Prisma + PostgreSQL) - 70% COMPLETE"]
+    subgraph MLLayer ["Python ML Microservice (FastAPI - Port 8001) - 100% COMPLETE"]
+        ML_Rank["LightGBM LambdaMART Ranker (/rank - NDCG@10)"]
+        ML_SHAP["TreeSHAP Explainability Engine (/explain)"]
+        ML_Embed["Dense 384-d Embedding Engine (/embed)"]
+        ML_MMR["Multi-Objective MMR Diversity Layer"]
+    end
+
+    subgraph PersistenceLayer ["Persistence Layer (Prisma + PostgreSQL) - 90% COMPLETE"]
         DB_Prisma["Prisma ORM & Client (backend/prisma/schema.prisma)"]
         DB_PG[("PostgreSQL 16 (Users, Profiles, Skills, Jobs, Interactions)")]
         DB_Seed["Database Seeder Script (prisma/seed.ts)"]
-        DB_QDR[("Qdrant Vector DB (Docker-compose ready)")]
-        DB_REDIS[("Redis 7 (Session & Cache ready)")]
+        DB_QDR[("Qdrant Vector DB (HNSW 384-d Collections)")]
+        DB_REDIS[("Redis 7 (Session & Telemetry Cache)")]
     end
 
-    subgraph MLLayer ["ML & Recommendation Engine - 15% COMPLETE"]
-        ML_Embed["Dense Vectors (MiniLM 384-d) [NEXT]"]
-        ML_Qdrant["Qdrant HNSW Hybrid Search [NEXT]"]
-        ML_LGBM["LightGBM LambdaMART Ranker (NDCG@10) [NEXT]"]
-        ML_SHAP["TreeSHAP Explainability Engine [NEXT]"]
-        ML_Agent["LangGraph Autonomous Agent [NEXT]"]
-    end
-
+    NGX -->|/ -> Port 3000| FrontendLayer
+    NGX -->|/api/ -> Port 8000| BackendLayer
+    NGX -->|/ml/ -> Port 8001| MLLayer
     FrontendLayer <==>|100% REST API Alignment| BackendLayer
-    BackendLayer <==>|Prisma ORM Queries & Fallbacks| PersistenceLayer
-    BackendLayer -.->|Next Step: Microservice Bridge| MLLayer
-    MLLayer -.->|Dense Embeddings| DB_QDR
+    BackendLayer <==>|Prisma ORM Queries| PersistenceLayer
+    BackendLayer <==>|Live ML Scoring & TreeSHAP| MLLayer
+    MLLayer <==>|HNSW Vector Queries| DB_QDR
 ```
 
 ---
