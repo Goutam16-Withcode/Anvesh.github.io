@@ -162,6 +162,25 @@ services:
       - anvesh_net
     restart: unless-stopped
 
+  # ----------------------------------------------------------------------------
+  # Automated Ingestion Worker (Continuous Cron Scheduler)
+  # ----------------------------------------------------------------------------
+  ingestion:
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
+    container_name: anvesh_ingestion_worker
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - postgres
+      - qdrant
+      - backend
+    networks:
+      - anvesh_net
+    restart: unless-stopped
+
 networks:
   anvesh_net:
     driver: bridge
