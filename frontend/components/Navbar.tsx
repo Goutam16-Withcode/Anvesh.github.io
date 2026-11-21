@@ -149,6 +149,13 @@ export function Navbar() {
                   icon={<FileCode2 className="w-4 h-4 text-amber-600" />}
                   badge="Live LaTeX"
                 />
+                <ProductItem
+                  title="Digital Career Twin"
+                  description="384-D vector avatar modeling market velocity & readiness index"
+                  href="/career-twin"
+                  icon={<Cpu className="w-4 h-4 text-brand-500" />}
+                  badge="Avatar"
+                />
               </div>
             </MenuItem>
 
@@ -194,6 +201,10 @@ export function Navbar() {
                 <HoveredLink href="/profile" className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-slate-700" />
                   <span>Profile & Resume Manager</span>
+                </HoveredLink>
+                <HoveredLink href="/career-twin" className="flex items-center gap-2">
+                  <Cpu className="w-3.5 h-3.5 text-brand-500" />
+                  <span>Digital Career Twin</span>
                 </HoveredLink>
                 <HoveredLink href="/#security" className="flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
@@ -313,6 +324,14 @@ export function Navbar() {
             >
               <span>Career Path Trajectory</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">Roadmap</span>
+            </Link>
+            <Link
+              href="/career-twin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-semibold text-slate-800 hover:text-brand-600 py-1 transition-colors flex items-center justify-between"
+            >
+              <span>Digital Career Twin</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">Avatar</span>
             </Link>
             <Link
               href="/profile"

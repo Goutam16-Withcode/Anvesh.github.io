@@ -224,6 +224,31 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/career-twin" className="hover:text-white transition-colors">
+                  Digital Career Twin
+                </Link>
+              </li>
+              <li>
+                <Link href="/compare-jobs" className="hover:text-white transition-colors">
+                  Compare Job Offers
+                </Link>
+              </li>
+              <li>
+                <Link href="/market-trends" className="hover:text-white transition-colors">
+                  Market Trends
+                </Link>
+              </li>
+              <li>
+                <Link href="/resume-builder" className="hover:text-white transition-colors">
+                  LaTeX Resume Builder
+                </Link>
+              </li>
+              <li>
+                <Link href="/roadmap" className="hover:text-white transition-colors">
+                  Roadmap Kanban
+                </Link>
+              </li>
+              <li>
                 <Link href="/profile" className="hover:text-white transition-colors">
                   Profile &amp; Resume
                 </Link>
