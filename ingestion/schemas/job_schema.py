@@ -54,6 +54,9 @@ class NormalizedJob(BaseModel):
     applicant_count: int = Field(default=15, ge=0)
     company_size: str = Field(default="Scaleup • 500-5,000 employees")
     industry: str = Field(default="Technology & AI")
+    company_tier: str = Field(default="HIGH_GROWTH_STARTUP")
+    region_hub: str = Field(default="Global Remote")
+    freshness_score: float = Field(default=0.98, ge=0.0, le=1.0)
     is_active: bool = True
     posted_at: datetime = Field(default_factory=datetime.utcnow)
 
