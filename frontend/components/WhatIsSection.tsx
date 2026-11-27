@@ -81,8 +81,8 @@ export function WhatIsSection() {
                   <X className="w-3 h-3 stroke-[2.5]" />
                 </div>
                 <div>
-                  <strong className="text-slate-900 font-semibold block text-xs">Duplicate &amp; Stale Listings:</strong>
-                  <span className="text-slate-500 text-xs">Repetitive, duplicate scraped recruiter postings flooding search.</span>
+                  <strong className="text-slate-900 font-semibold block text-xs">Ghost Jobs &amp; Promoted Spam:</strong>
+                  <span className="text-slate-500 text-xs">Sponsored LinkedIn reposts open for 90+ days flood organic search.</span>
                 </div>
               </li>
               <li className="flex items-start gap-3">
@@ -149,8 +149,8 @@ export function WhatIsSection() {
                   <Check className="w-3 h-3 stroke-[2.5]" />
                 </div>
                 <div>
-                  <strong className="text-slate-900 font-semibold block text-xs">What-If Simulation:</strong>
-                  <span className="text-slate-600 text-xs">Real-time salary lift &amp; market opportunity modeling.</span>
+                  <strong className="text-slate-900 font-semibold block text-xs">Daily MNC &amp; Startup ATS Sync + What-If Simulator:</strong>
+                  <span className="text-slate-600 text-xs">Day-by-day active openings across global hubs + live salary lift modeling.</span>
                 </div>
               </li>
             </ul>

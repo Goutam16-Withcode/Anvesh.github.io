@@ -66,4 +66,11 @@ export class JobsPipelineController {
   getTelemetrySummary() {
     return this.pipelineService.getTelemetrySummary();
   }
+
+  @Post('refresh-feed')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Trigger live daily ATS & MNC/Startup freshness sync (Zero Ghost Jobs)' })
+  refreshDailyFeed() {
+    return this.pipelineService.refreshDailyFeed();
+  }
 }

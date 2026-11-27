@@ -5,6 +5,7 @@ Adheres to docs/architecture/data-flow.md.
 """
 
 import argparse
+import math
 import sys
 import uuid
 from datetime import datetime
@@ -16,6 +17,7 @@ from ingestion.sources.sample_source import SampleJobSource
 from ingestion.sources.remoteok_source import RemoteOKJobSource
 from ingestion.sources.arbeitnow_source import ArbeitnowJobSource
 from ingestion.sources.linkedin_source import LinkedInJobSource
+from ingestion.sources.mnc_startup_source import MNCAndStartupLiveSource
 from ingestion.pipelines.taxonomy_normalizer import TaxonomyNormalizer
 from ingestion.pipelines.dedup_engine import DedupEngine
 from ingestion.pipelines.vector_indexer import QdrantVectorIndexer
@@ -37,8 +39,37 @@ class IngestionOrchestrator:
             return ArbeitnowJobSource()
         elif s == "linkedin":
             return LinkedInJobSource()
+        elif s == "mnc_startup":
+            return MNCAndStartupLiveSource()
         else:
             return SampleJobSource()
+
+    def _classify_company_tier(self, company: str) -> str:
+        c = company.lower()
+        top_mncs = ["google", "microsoft", "amazon", "nvidia", "meta", "apple", "stripe", "spotify", "datadog", "cloudflare"]
+        unicorns = ["anthropic", "openai", "perplexity", "databricks", "vercel", "linear", "mistral", "sarvam", "razorpay"]
+        if any(m in c for m in top_mncs):
+            return "TOP_MNC"
+        if any(u in c for u in unicorns):
+            return "AI_UNICORN"
+        return "HIGH_GROWTH_STARTUP"
+
+    def _classify_region_hub(self, location: str) -> str:
+        loc = (location or "").lower()
+        if any(k in loc for k in ["bengaluru", "bangalore", "hyderabad", "pune", "delhi", "india", "mumbai"]):
+            return "India Hubs"
+        if any(k in loc for k in ["london", "berlin", "paris", "europe", "amsterdam", "dublin"]):
+            return "Europe Hubs"
+        if any(k in loc for k in ["san francisco", "new york", "seattle", "austin", "boston", "santa clara", "menlo park", "usa", "united states"]):
+            return "USA Hubs"
+        return "Global Remote"
+
+    def _compute_freshness_score(self, posted_at: Optional[datetime]) -> float:
+        if not posted_at:
+            return 0.99
+        age_days = max(0.0, (datetime.utcnow() - posted_at).total_seconds() / 86400.0)
+        # Exponential 14-day half-life decay: f(t) = exp(-ln(2) * t / 14)
+        return round(math.exp(-math.log(2) * age_days / 14.0), 3)
 
     def run_pipeline(
         self,
@@ -111,12 +142,13 @@ class IngestionOrchestrator:
 
             # Build canonical normalized record
             job_id = f"job_{dedup_hash[:16]}"
+            loc_str = raw.location or "Remote"
             norm_job = NormalizedJob(
                 id=job_id,
                 dedup_hash=dedup_hash,
                 title=title,
                 company=company,
-                location=raw.location or "Remote",
+                location=loc_str,
                 work_mode=raw.work_mode or "REMOTE",
                 description=desc,
                 required_skills=req_skills,
@@ -128,6 +160,9 @@ class IngestionOrchestrator:
                 currency=raw.currency or "USD",
                 external_url=raw.url,
                 source_name=raw.source_name,
+                company_tier=self._classify_company_tier(company),
+                region_hub=self._classify_region_hub(loc_str),
+                freshness_score=self._compute_freshness_score(raw.posted_at),
                 posted_at=raw.posted_at or datetime.utcnow(),
             )
             normalized_jobs.append(norm_job)
@@ -163,7 +198,7 @@ def main():
         "--source",
         type=str,
         default="sample",
-        choices=["sample", "remoteok", "arbeitnow", "linkedin", "all"],
+        choices=["sample", "remoteok", "arbeitnow", "linkedin", "mnc_startup", "all"],
         help="Target job source feed",
     )
     parser.add_argument("--limit", type=int, default=20, help="Maximum postings to process")
@@ -173,7 +208,7 @@ def main():
     orchestrator = IngestionOrchestrator()
 
     if args.source == "all":
-        sources = ["sample", "linkedin", "remoteok", "arbeitnow"]
+        sources = ["mnc_startup", "linkedin", "remoteok", "arbeitnow", "sample"]
         for s in sources:
             orchestrator.run_pipeline(source_name=s, limit=args.limit, dry_run=args.dry_run)
     else:
