@@ -49,6 +49,11 @@ class NormalizedJob(BaseModel):
     currency: str = Field(default="USD")
     external_url: Optional[str] = None
     source_name: str
+    seniority_level: str = Field(default="Mid-Senior")
+    easy_apply: bool = Field(default=True)
+    applicant_count: int = Field(default=15, ge=0)
+    company_size: str = Field(default="Scaleup • 500-5,000 employees")
+    industry: str = Field(default="Technology & AI")
     is_active: bool = True
     posted_at: datetime = Field(default_factory=datetime.utcnow)
 

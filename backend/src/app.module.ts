@@ -10,6 +10,7 @@ import { HealthModule } from './health/health.module';
 import { SkillGapModule } from './skill-gap/skill-gap.module';
 import { CareerPathsModule } from './career-paths/career-paths.module';
 import { ResumeModule } from './resume/resume.module';
+import { JobsPipelineModule } from './jobs-pipeline/jobs-pipeline.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ResumeModule } from './resume/resume.module';
     SkillGapModule,
     CareerPathsModule,
     ResumeModule,
+    JobsPipelineModule,
   ],
 })
 export class AppModule {}

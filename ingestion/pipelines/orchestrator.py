@@ -15,6 +15,7 @@ from ingestion.sources.base_source import BaseJobSource
 from ingestion.sources.sample_source import SampleJobSource
 from ingestion.sources.remoteok_source import RemoteOKJobSource
 from ingestion.sources.arbeitnow_source import ArbeitnowJobSource
+from ingestion.sources.linkedin_source import LinkedInJobSource
 from ingestion.pipelines.taxonomy_normalizer import TaxonomyNormalizer
 from ingestion.pipelines.dedup_engine import DedupEngine
 from ingestion.pipelines.vector_indexer import QdrantVectorIndexer
@@ -34,6 +35,8 @@ class IngestionOrchestrator:
             return RemoteOKJobSource()
         elif s == "arbeitnow":
             return ArbeitnowJobSource()
+        elif s == "linkedin":
+            return LinkedInJobSource()
         else:
             return SampleJobSource()
 
@@ -160,7 +163,7 @@ def main():
         "--source",
         type=str,
         default="sample",
-        choices=["sample", "remoteok", "arbeitnow", "all"],
+        choices=["sample", "remoteok", "arbeitnow", "linkedin", "all"],
         help="Target job source feed",
     )
     parser.add_argument("--limit", type=int, default=20, help="Maximum postings to process")
@@ -170,7 +173,7 @@ def main():
     orchestrator = IngestionOrchestrator()
 
     if args.source == "all":
-        sources = ["sample", "remoteok", "arbeitnow"]
+        sources = ["sample", "linkedin", "remoteok", "arbeitnow"]
         for s in sources:
             orchestrator.run_pipeline(source_name=s, limit=args.limit, dry_run=args.dry_run)
     else:
