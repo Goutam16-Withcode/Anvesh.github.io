@@ -1,70 +1,72 @@
 import React from 'react';
 import Link from 'next/link';
-import { Compass, Search, Home, Briefcase, TrendingUp, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search, Compass, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnveshBrandLockup } from '@/components/ui/anvesh-logo';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 selection:bg-brand-500 selection:text-white relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center justify-center p-6 selection:bg-brand-500 selection:text-white relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-lg w-full text-center space-y-8">
+      <div className="max-w-lg w-full text-center space-y-6 relative z-10 p-8 rounded-3xl bg-white border border-slate-200 shadow-card">
         <div className="flex justify-center">
-          <Link href="/">
-            <AnveshBrandLockup size="md" />
-          </Link>
+          <AnveshBrandLockup size="md" />
         </div>
 
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-mono uppercase tracking-wider">
-            <span>HTTP 404</span>
-            <span>&bull;</span>
-            <span>Trajectory Node Not Found</span>
+        <div className="space-y-3 pt-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-mono font-bold">
+            <span>HTTP 404 &bull; Vector Coordinate Not Mapped</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white">
-            Off the Career Graph
+
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
+            Route Not Found
           </h1>
-          <p className="text-sm sm:text-base text-slate-400 max-w-md mx-auto leading-relaxed">
-            The page or resource you requested does not exist in our 15,400+ ontology nodes or has transitioned to a new trajectory.
+
+          <p className="text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
+            The requested node does not exist in the active career navigation graph. Jump back to live discovery or counterfactual simulation.
           </p>
         </div>
 
-        {/* Quick Recovery Navigation */}
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <Link href="/jobs" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-500/40 hover:bg-white/10 transition-all text-left flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center shrink-0">
-              <Briefcase className="w-4 h-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <Link
+            href="/jobs"
+            className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 transition-all text-left flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
+              <Search className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-white">Jobs Catalog</div>
-              <div className="text-[10px] text-slate-400">100k+ Openings</div>
+              <div className="text-xs font-bold text-slate-900">Explore Jobs</div>
+              <div className="text-[11px] text-slate-500">Top MNCs &amp; Startups</div>
             </div>
           </Link>
 
-          <Link href="/what-if" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/40 hover:bg-white/10 transition-all text-left flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-4 h-4" />
+          <Link
+            href="/what-if"
+            className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/40 transition-all text-left flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-white">What-If Suite</div>
-              <div className="text-[10px] text-slate-400">Simulate ROI</div>
+              <div className="text-xs font-bold text-slate-900">What-If Simulator</div>
+              <div className="text-[11px] text-slate-500">Model salary growth</div>
             </div>
           </Link>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <Link href="/" className="w-full sm:w-auto">
             <Button variant="primary" size="sm" className="w-full gap-2 text-xs font-bold px-6 py-2.5">
-              <Home className="w-4 h-4" />
-              <span>Back to Home</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Return to Home</span>
             </Button>
           </Link>
           <Link href="/dashboard" className="w-full sm:w-auto">
-            <Button variant="outline" size="sm" className="w-full text-xs font-semibold bg-white/5 border-white/10 text-white hover:bg-white/10 px-6 py-2.5">
-              <span>Candidate Dashboard</span>
+            <Button variant="outline" size="sm" className="w-full text-xs font-semibold px-6 py-2.5">
+              <Compass className="w-3.5 h-3.5 mr-1.5 text-brand-600" />
+              <span>Open Dashboard</span>
             </Button>
           </Link>
         </div>

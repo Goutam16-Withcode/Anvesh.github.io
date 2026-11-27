@@ -420,12 +420,14 @@ function JobsContent() {
         }
         return 0;
       });
-  }, [jobs, searchQuery, workMode, experienceLevel, minSalaryFilter, matchScoreFilter, selectedSkills, sortBy]);
+  }, [jobs, catalogTab, savedJobIds, appliedJobIds, companyTierFilter, regionHubFilter, searchQuery, workMode, experienceLevel, minSalaryFilter, matchScoreFilter, selectedSkills, sortBy]);
 
   const activeFilterCount =
     (searchQuery ? 1 : 0) +
     (workMode !== 'ALL' ? 1 : 0) +
     (experienceLevel !== 'ALL' ? 1 : 0) +
+    (companyTierFilter !== 'ALL' ? 1 : 0) +
+    (regionHubFilter !== 'ALL' ? 1 : 0) +
     (minSalaryFilter > 0 ? 1 : 0) +
     (matchScoreFilter > 0 ? 1 : 0) +
     selectedSkills.length;
@@ -1247,6 +1249,44 @@ function JobsContent() {
                     <Badge key={s} variant="brand" className="text-xs">
                       + {s}
                     </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Unique Feature: AI Interview Prep & 1-Click Recruiter Cold-Outreach Generator */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-brand-600" />
+                  Interview Prep &amp; Recruiter Outreach Pitch
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const recruiter = selectedJob.hiring_team?.name || 'Hiring Team';
+                    const matched = selectedJob.matched_skills.slice(0, 3).join(', ') || selectedJob.required_skills.slice(0, 3).join(', ');
+                    const pitch = `Hi ${recruiter}, I noticed ${selectedJob.company.name}'s ${selectedJob.title} opening (${(selectedJob.match_score * 100).toFixed(0)}% skill alignment). With hands-on experience in ${matched}, I'd love to connect briefly on how I can contribute to your team.`;
+                    navigator.clipboard.writeText(pitch);
+                    showToast('Personalized Hiring Manager Outreach Pitch copied to clipboard!');
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-brand-50 border border-slate-200 hover:border-brand-300 text-[11px] font-bold text-brand-700 transition-colors"
+                >
+                  Copy Outreach Note
+                </button>
+              </div>
+              <div className="space-y-1.5 text-[11px] text-slate-600">
+                <div className="font-semibold text-slate-700">Likely Technical Focus Areas:</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(selectedJob.required_skills.length > 0 ? selectedJob.required_skills : ['System Design', 'Distributed APIs']).slice(0, 3).map((sk) => (
+                    <span key={sk} className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium text-slate-700">
+                      {sk} Architecture &amp; Trade-offs
+                    </span>
+                  ))}
+                  {selectedJob.missing_skills.slice(0, 1).map((ms) => (
+                    <span key={ms} className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 font-medium text-amber-800">
+                      Prep Gap: {ms} Fundamentals
+                    </span>
                   ))}
                 </div>
               </div>

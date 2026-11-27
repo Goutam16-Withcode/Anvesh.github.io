@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { AuthModal } from '@/components/AuthModal';
 import { NotificationProvider } from '@/lib/notification-context';
 import { LiveNotificationToast } from '@/components/Notifications/LiveNotificationToast';
+import { CommandPalette } from '@/components/CommandPalette';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -53,6 +54,7 @@ export default function RootLayout({
             {children}
             <AuthModal />
             <LiveNotificationToast />
+            <CommandPalette />
           </NotificationProvider>
         </AuthProvider>
       </body>

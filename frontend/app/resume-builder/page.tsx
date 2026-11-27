@@ -555,7 +555,7 @@ export default function ResumeBuilderPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+      <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
         {/* ── Top Bar ── */}
         <div className="border-b border-slate-200/80 bg-white/95 shadow-sm flex items-center gap-4 px-4 py-2.5 flex-shrink-0 mt-16">
           {/* Breadcrumb */}

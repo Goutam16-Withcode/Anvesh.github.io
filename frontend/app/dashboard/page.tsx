@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Compass, TrendingUp, Sparkles, LogOut, CheckCircle2, User, Layers, ArrowLeft, Send, Terminal, RefreshCw, Briefcase, Zap } from 'lucide-react';
+import { Compass, TrendingUp, Sparkles, CheckCircle2, User, Layers, Send, Terminal, RefreshCw, Briefcase, Zap, Bookmark, Command } from 'lucide-react';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AnveshBrandLockup } from '@/components/ui/anvesh-logo';
 import { useAuth } from '@/lib/auth-context';
 import { api, Recommendation, WhatIfResult } from '@/lib/api';
 import { formatNumber } from '@/lib/utils';
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>(['Kubernetes', 'Go']);
   const [simulation, setSimulation] = useState<WhatIfResult | null>(null);
   const [profileSkills, setProfileSkills] = useState<string[]>([]);
+  const [pipelineStats, setPipelineStats] = useState({ saved: 0, applied: 0 });
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -56,21 +58,42 @@ export default function DashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      const recData = await api.getRecommendations();
-      setRecommendations(recData.recommendations);
-      const simData = await api.simulateWhatIf(selectedSkills);
-      setSimulation(simData);
+      let activeSkills: string[] = [];
+      let headline = 'Software & AI Engineer';
+      let yearsExp = 4;
 
-      // Load profile skills if candidate saved profile
       const stored = localStorage.getItem('anvesh_profile');
       if (stored) {
         const p = JSON.parse(stored);
         if (p.skills && Array.isArray(p.skills) && p.skills.length > 0) {
-          setProfileSkills(p.skills.map((s: any) => (typeof s === 'string' ? s : s.name)));
-        } else {
-          setProfileSkills([]);
+          activeSkills = p.skills.map((s: any) => (typeof s === 'string' ? s : s.name));
+          setProfileSkills(activeSkills);
         }
+        if (p.headline) headline = p.headline;
+        if (p.yearsExperience) yearsExp = p.yearsExperience;
       }
+
+      const [recRes, simRes, savedRes, appsRes] = await Promise.allSettled([
+        activeSkills.length > 0
+          ? api.getPersonalizedRecommendations({ headline, skills: activeSkills, years_experience: yearsExp }, { limit: 6 })
+          : api.getRecommendations(),
+        api.simulateWhatIf(selectedSkills),
+        api.getSavedJobs(),
+        api.getApplications(),
+      ]);
+
+      if (recRes.status === 'fulfilled' && recRes.value?.recommendations) {
+        setRecommendations(recRes.value.recommendations);
+      }
+      if (simRes.status === 'fulfilled' && simRes.value) {
+        setSimulation(simRes.value);
+      }
+
+      const localSaved = JSON.parse(localStorage.getItem('anvesh_saved_jobs') || '[]');
+      const localApps = JSON.parse(localStorage.getItem('anvesh_applied_jobs') || '[]');
+      const savedCount = savedRes.status === 'fulfilled' ? Math.max(localSaved.length, savedRes.value.saved_jobs?.length || 0) : localSaved.length;
+      const appCount = appsRes.status === 'fulfilled' ? Math.max(localApps.length, appsRes.value.applications?.length || 0) : localApps.length;
+      setPipelineStats({ saved: savedCount, applied: appCount });
     } catch (e) {
       console.error(e);
     }
@@ -135,100 +158,26 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col">
-      {/* Top Bar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-subtle">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="focus:outline-none">
-              <AnveshBrandLockup size="sm" />
-            </Link>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
-              Active Session
-            </span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-1">
-            <Link
-              href="/jobs"
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 transition-colors flex items-center gap-1.5"
-            >
-              <Briefcase className="w-3.5 h-3.5 text-brand-600" />
-              <span>Jobs Catalog</span>
-            </Link>
-            <Link
-              href="/what-if"
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors flex items-center gap-1.5"
-            >
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <span>What-If Suite</span>
-            </Link>
-            <Link
-              href="/skill-gap"
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Skill Gap Radar</span>
-            </Link>
-            <Link
-              href="/career-path"
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 transition-colors flex items-center gap-1.5"
-            >
-              <Layers className="w-3.5 h-3.5 text-cyan-600" />
-              <span>Career Trajectory</span>
-            </Link>
-            <Link
-              href="/profile"
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 transition-colors flex items-center gap-1.5"
-            >
-              <User className="w-3.5 h-3.5 text-purple-600" />
-              <span>My Profile</span>
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <Link href="/profile" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-                <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center border border-brand-200">
-                  {user?.photo_url ? (
-                    <img src={user.photo_url} alt={user.full_name} className="w-full h-full object-cover rounded-full" />
-                  ) : (
-                    user?.full_name?.charAt(0) || 'U'
-                  )}
-                </div>
-                <div className="hidden sm:block text-left">
-                  <div className="text-xs font-bold text-slate-900">{user?.full_name || 'Candidate User'}</div>
-                  <div className="text-[10px] text-slate-500">{user?.email || 'Guest Session'}</div>
-                </div>
-              </Link>
-            </div>
-
-            <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs text-red-600 hover:text-red-700">
-              <LogOut className="w-3.5 h-3.5 mr-1" />
-              <span>Sign Out</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-brand-500 selection:text-white">
+      {/* Unified Responsive Navbar */}
+      <Navbar />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 flex-1 w-full space-y-8">
         
         {/* Candidate Welcome Banner */}
         <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <Badge variant="brand">Candidate Profile &bull; Active HNSW Vector</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="brand">Candidate Command Center &bull; Active HNSW Vector</Badge>
+              <Badge variant="emerald" className="font-mono text-[10px]">Daily MNC &amp; Startup Sync</Badge>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               {user?.full_name ? `Welcome back, ${user.full_name}` : 'Welcome to ANVESH Career Discovery'}
             </h1>
             <p className="text-sm text-slate-600 max-w-2xl">
-              Deterministic career intelligence evaluated across 104,250 live catalog postings with canonical skill graph normalization.
+              Deterministic career intelligence evaluated across live MNC &amp; startup ATS feeds with canonical skill graph normalization.
             </p>
           </div>
 
@@ -250,6 +199,56 @@ export default function DashboardPage() {
               </>
             )}
           </div>
+        </div>
+
+        {/* Live Candidate Pipeline & Activity Funnel Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Link href="/jobs?tab=saved" className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-amber-300 shadow-2xs transition-all flex items-center justify-between">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Saved Jobs</div>
+              <div className="text-2xl font-black text-slate-900 font-mono mt-0.5">{pipelineStats.saved}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Bookmark className="w-5 h-5" />
+            </div>
+          </Link>
+
+          <Link href="/jobs?tab=applied" className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-300 shadow-2xs transition-all flex items-center justify-between">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Applications</div>
+              <div className="text-2xl font-black text-emerald-600 font-mono mt-0.5">{pipelineStats.applied}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+          </Link>
+
+          <Link href="/profile" className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-brand-300 shadow-2xs transition-all flex items-center justify-between">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Verified Skills</div>
+              <div className="text-2xl font-black text-brand-600 font-mono mt-0.5">{profileSkills.length || 8}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+              <User className="w-5 h-5" />
+            </div>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('anvesh_open_command_palette'))}
+            className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-300 shadow-2xs transition-all flex items-center justify-between text-left"
+          >
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Spotlight</div>
+              <div className="text-sm font-extrabold text-slate-900 mt-1 flex items-center gap-1.5">
+                <span>Press</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[11px]">Ctrl+K</kbd>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Command className="w-5 h-5" />
+            </div>
+          </button>
         </div>
 
         {/* Quick Discovery Navigation Hub */}
@@ -524,6 +523,7 @@ export default function DashboardPage() {
         </div>
 
       </main>
+      <Footer />
     </div>
   );
 }

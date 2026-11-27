@@ -215,8 +215,21 @@ export function Navbar() {
           </Menu>
         </div>
 
-        {/* Auth & CTA Actions with Notification Center */}
+        {/* Auth & CTA Actions with Command Palette & Notification Center */}
         <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('anvesh_open_command_palette'))}
+            title="Quick Jump (Ctrl+K)"
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 text-xs text-slate-600 transition-colors"
+          >
+            <Search className="w-3.5 h-3.5 text-slate-400" />
+            <span className="font-medium">Jump</span>
+            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-500">
+              Ctrl K
+            </kbd>
+          </button>
+
           {/* Real-Time Career Intelligence Notification Center */}
           <NotificationCenter />
 
